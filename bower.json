@@ -1,0 +1,17 @@
+{
+  "name": "kaleidoscope",
+  "version": "0.0.1",
+  "homepage": "https://github.com/sugarshin/kaleidoscope",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.3",
+    "underscore": "~1.7.0"
+  }
+}
