@@ -19,6 +19,9 @@ http://sugarshin.github.io/kaleidoscope/
 [CoffeeScript](//coffeescript.org/)
 
 ```shell
+git submodule init
+git submodule update
+
 npm i
 ```
 
