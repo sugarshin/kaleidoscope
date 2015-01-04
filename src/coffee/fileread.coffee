@@ -1,39 +1,59 @@
+$ = require 'jquery'
+
 Mixin = require '../../coffee-mixin/dest/mixin'
 Eventz = require '../../eventz/dest/eventz'
 
-$ = require 'jquery'
 
-class FileRead
-  Mixin.include @, Eventz
+module.exports =
+  class FileRead
+    Mixin.include @, Eventz
 
-  defaults:
-    type: 'dataURL'
+    defaults:
+      type: 'dataURL'
 
-  constructor: (el, options) ->
-    @options = @extend {}, @defaults, options
-    @el = el
+    constructor: (input, opts) ->
+      @opts = $.extend {}, @defaults, opts
+      @input = input
+      @$input = $(input)
+      # @events()
 
-  addImg: (e) ->
+    setImgTag: (event) ->
+      deferForWhen = $.Deferred()
+      defers = []
+      for file, i in event.target.files
+        unless file.type.match 'image.*' then continue
+        do (file) =>
+          defer = $.Deferred()
+          defers.push defer.promise()
 
+          reader = new FileReader
 
-  addImg: (fileList) ->
-    @fileReader or= []
-    for file, i in fileList
-      @fileReader[i] = new FileReader
-      @fileReader[i].readAsDataURL file
+          reader.onload = (ev) =>
+            @_imgTags or= []
+            @_imgTags.push "<img src='#{ev.target.result}' alt=''>"
+            defer.resolve()
+            
 
-      @addEvent @fileReader[i], 'load', ->
-      # @fileReader[i].onload = (event) ->
-        img = $('<img />')
-        console.log event.target.result
-        img.attr 'src', event.target.result
-        
-        # result.innerHTML += event.target.result;
-        $(result).append img
+          reader.onerror = (ev) =>
+            switch ev.target.error.code
+              when ev.target.error.NOT_FOUND_ERR
+                alert 'File Not Found!'
+              when ev.target.error.NOT_READABLE_ERR
+                alert 'File is not readable'
+              when ev.target.error.ABORT_ERR
+              # noop
+              else
+                alert 'An error occurred reading this file.'
+            defer.reject()
+            
+          reader.readAsDataURL file
 
-      @fileReader[i].onerror = (event) ->
-        code = event.target.error.code
-        result.innerHTML += 'エラー発生：' + code
+      $.when.apply($, defers).done =>
+        deferForWhen.resolve @
 
-  events: ->
-    @addEvent @el, 'change', 
+      return deferForWhen.promise()
+
+    getImgTag: -> @_imgTags
+
+    events: ->
+      @input.addEventListener 'change', (ev) => @setImgTag ev

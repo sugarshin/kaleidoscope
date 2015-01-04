@@ -4,94 +4,38 @@
  * License: MIT
  */
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var $, Eventz, FileRead, Mixin, result, _;
+var $, FileRead, Kaleidoscope, fileRead, inputFile, _;
 
 $ = require("./../../bower_components/jquery/dist/jquery.js");
 
 _ = require("./../../bower_components/underscore/underscore.js");
 
-Mixin = require('./../../coffee-mixin/dest/mixin');
-
-Eventz = require('./../../eventz/dest/eventz');
+Kaleidoscope = require('./kaleidoscope');
 
 FileRead = require('./fileread');
 
-result = document.getElementById('result');
+inputFile = document.getElementById('file');
 
-document.getElementById('file').addEventListener('change', function(e) {
-  var fileList, frs, i, _i, _ref, _results;
-  fileList = document.getElementById('file').files;
-  console.log(e.target.files);
-  frs = [];
-  _results = [];
-  for (i = _i = 0, _ref = e.target.files.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-    frs[i] = new FileReader;
-    frs[i].readAsDataURL(e.target.files[i]);
-    frs[i].onload = function(event) {
-      var img;
-      img = $('<img />');
-      console.log(event.target.result);
-      img.attr('src', event.target.result);
-      return $(result).append(img);
-    };
-    _results.push(frs[i].onerror = function(event) {
-      var code;
-      code = event.target.error.code;
-      return result.innerHTML += 'エラー発生：' + code;
-    });
-  }
-  return _results;
-});
+fileRead = new FileRead(inputFile);
 
-FileRead = (function() {
-  Mixin.include(FileRead, Eventz);
-
-  FileRead.prototype.defaults = {
-    type: 'dataURL'
-  };
-
-  function FileRead(el, options) {
-    this.options = this.extend({}, this.defaults, options);
-    this.el = el;
-  }
-
-  FileRead.prototype.addImg = function(e) {};
-
-  FileRead.prototype.addImg = function(fileList) {
-    var file, i, _i, _len, _results;
-    this.fileReader || (this.fileReader = []);
+inputFile.addEventListener('change', function(ev) {
+  console.log("1");
+  return fileRead.setImgTag(ev).done(function(self) {
+    var i, img, _i, _len, _ref, _results;
+    console.log(self.getImgTag());
+    _ref = self.getImgTag();
     _results = [];
-    for (i = _i = 0, _len = fileList.length; _i < _len; i = ++_i) {
-      file = fileList[i];
-      this.fileReader[i] = new FileReader;
-      this.fileReader[i].readAsDataURL(file);
-      this.addEvent(this.fileReader[i], 'load', function() {
-        var img;
-        img = $('<img />');
-        console.log(event.target.result);
-        img.attr('src', event.target.result);
-        return $(result).append(img);
-      });
-      _results.push(this.fileReader[i].onerror = function(event) {
-        var code;
-        code = event.target.error.code;
-        return result.innerHTML += 'エラー発生：' + code;
-      });
+    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+      img = _ref[i];
+      _results.push($('#result').append(img));
     }
     return _results;
-  };
-
-  FileRead.prototype.events = function() {
-    return this.addEvent(this.el, 'change');
-  };
-
-  return FileRead;
-
-})();
+  });
+});
 
 
 
-},{"./../../bower_components/jquery/dist/jquery.js":2,"./../../bower_components/underscore/underscore.js":3,"./../../coffee-mixin/dest/mixin":4,"./../../eventz/dest/eventz":5,"./fileread":6}],2:[function(require,module,exports){
+},{"./../../bower_components/jquery/dist/jquery.js":2,"./../../bower_components/underscore/underscore.js":3,"./fileread":6,"./kaleidoscope":7}],2:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.3
  * http://jquery.com/
@@ -10771,7 +10715,7 @@ module.exports = Mixin = (function() {
 
 },{}],5:[function(require,module,exports){
 /*!
- * @license eventz v1.1.1
+ * @license eventz v1.2.0
  * (c) 2015 sugarshin https://github.com/sugarshin
  * License: MIT
  * Fork on https://github.com/Takazudo/EveEve
@@ -10796,10 +10740,13 @@ module.exports = Mixin = (function() {
     };
 
     Eventz.one = function(event, handler) {
-      this.on(event, function() {
-        this.off(event, arguments.callee);
-        return handler.apply(this, arguments);
-      });
+      var ownFunc;
+      this.on(event, ownFunc = (function(_this) {
+        return function() {
+          _this.off(event, ownFunc);
+          return handler.apply(_this, arguments);
+        };
+      })(this));
       return this;
     };
 
@@ -10859,52 +10806,84 @@ module.exports = Mixin = (function() {
 },{}],6:[function(require,module,exports){
 var $, Eventz, FileRead, Mixin;
 
+$ = require("./../../bower_components/jquery/dist/jquery.js");
+
 Mixin = require('../../coffee-mixin/dest/mixin');
 
 Eventz = require('../../eventz/dest/eventz');
 
-$ = require("./../../bower_components/jquery/dist/jquery.js");
-
-FileRead = (function() {
+module.exports = FileRead = (function() {
   Mixin.include(FileRead, Eventz);
 
   FileRead.prototype.defaults = {
     type: 'dataURL'
   };
 
-  function FileRead(el, options) {
-    this.options = this.extend({}, this.defaults, options);
-    this.el = el;
+  function FileRead(input, opts) {
+    this.opts = $.extend({}, this.defaults, opts);
+    this.input = input;
+    this.$input = $(input);
   }
 
-  FileRead.prototype.addImg = function(e) {};
-
-  FileRead.prototype.addImg = function(fileList) {
-    var file, i, _i, _len, _results;
-    this.fileReader || (this.fileReader = []);
-    _results = [];
-    for (i = _i = 0, _len = fileList.length; _i < _len; i = ++_i) {
-      file = fileList[i];
-      this.fileReader[i] = new FileReader;
-      this.fileReader[i].readAsDataURL(file);
-      this.addEvent(this.fileReader[i], 'load', function() {
-        var img;
-        img = $('<img />');
-        console.log(event.target.result);
-        img.attr('src', event.target.result);
-        return $(result).append(img);
-      });
-      _results.push(this.fileReader[i].onerror = function(event) {
-        var code;
-        code = event.target.error.code;
-        return result.innerHTML += 'エラー発生：' + code;
-      });
+  FileRead.prototype.setImgTag = function(event) {
+    var deferForWhen, defers, file, i, _fn, _i, _len, _ref;
+    deferForWhen = $.Deferred();
+    defers = [];
+    _ref = event.target.files;
+    _fn = (function(_this) {
+      return function(file) {
+        var defer, reader;
+        defer = $.Deferred();
+        defers.push(defer.promise());
+        reader = new FileReader;
+        reader.onload = function(ev) {
+          _this._imgTags || (_this._imgTags = []);
+          _this._imgTags.push("<img src='" + ev.target.result + "' alt=''>");
+          return defer.resolve();
+        };
+        reader.onerror = function(ev) {
+          switch (ev.target.error.code) {
+            case ev.target.error.NOT_FOUND_ERR:
+              alert('File Not Found!');
+              break;
+            case ev.target.error.NOT_READABLE_ERR:
+              alert('File is not readable');
+              break;
+            case ev.target.error.ABORT_ERR:
+              break;
+            default:
+              alert('An error occurred reading this file.');
+          }
+          return defer.reject();
+        };
+        return reader.readAsDataURL(file);
+      };
+    })(this);
+    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+      file = _ref[i];
+      if (!file.type.match('image.*')) {
+        continue;
+      }
+      _fn(file);
     }
-    return _results;
+    $.when.apply($, defers).done((function(_this) {
+      return function() {
+        return deferForWhen.resolve(_this);
+      };
+    })(this));
+    return deferForWhen.promise();
+  };
+
+  FileRead.prototype.getImgTag = function() {
+    return this._imgTags;
   };
 
   FileRead.prototype.events = function() {
-    return this.addEvent(this.el, 'change');
+    return this.input.addEventListener('change', (function(_this) {
+      return function(ev) {
+        return _this.setImgTag(ev);
+      };
+    })(this));
   };
 
   return FileRead;
@@ -10913,4 +10892,28 @@ FileRead = (function() {
 
 
 
-},{"../../coffee-mixin/dest/mixin":4,"../../eventz/dest/eventz":5,"./../../bower_components/jquery/dist/jquery.js":2}]},{},[1]);
+},{"../../coffee-mixin/dest/mixin":4,"../../eventz/dest/eventz":5,"./../../bower_components/jquery/dist/jquery.js":2}],7:[function(require,module,exports){
+var $, Eventz, FileRead, Kaleidoscope, Mixin, _;
+
+$ = require("./../../bower_components/jquery/dist/jquery.js");
+
+_ = require("./../../bower_components/underscore/underscore.js");
+
+Mixin = require('./../../coffee-mixin/dest/mixin');
+
+Eventz = require('./../../eventz/dest/eventz');
+
+FileRead = require('./fileread');
+
+module.exports = Kaleidoscope = (function() {
+  function Kaleidoscope() {}
+
+  Mixin.include(Kaleidoscope, Eventz);
+
+  return Kaleidoscope;
+
+})();
+
+
+
+},{"./../../bower_components/jquery/dist/jquery.js":2,"./../../bower_components/underscore/underscore.js":3,"./../../coffee-mixin/dest/mixin":4,"./../../eventz/dest/eventz":5,"./fileread":6}]},{},[1]);

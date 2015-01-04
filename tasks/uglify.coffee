@@ -6,7 +6,7 @@ $ = require './../config.json'
 
 
 gulp.task 'uglify', ->
-  gulp.src "./#{$.DEST}/#{$.NAME}.js"
+  gulp.src "./#{$.DEST}/#{$.MAIN}.js"
     .pipe uglify(
       preserveComments: 'some'
     )

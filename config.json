@@ -1,5 +1,6 @@
 {
   "NAME": "kaleidoscope",
+  "MAIN": "main",
   "SRC": "src",
   "DEST": "dest"
 }
