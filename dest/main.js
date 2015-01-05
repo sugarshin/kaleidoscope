@@ -1,8 +1,3 @@
-/*!
- * @license kaleidoscope v0.0.1
- * (c) 2015 sugarshin https://github.com/sugarshin
- * License: MIT
- */
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var FileRead, Kaleidoscope, fileRead, inputFile, instance;
 
@@ -7212,6 +7207,28 @@ module.exports = Kaleidoscope = (function() {
     return this;
   };
 
+  Kaleidoscope.prototype.update = function() {
+    var start, update;
+    start = new Date().getTime();
+    (update = (function(_this) {
+      return function() {
+        var delta, last, theta;
+        _requestAnimeFrame(update);
+        last = new Date().getTime();
+        if (last - start >= 16) {
+          delta = _this.opts.tr - _this.opts.offsetRotation;
+          theta = Math.atan2(Math.sin(delta), Math.cos(delta));
+          _this.opts.offsetX += (_this.opts.tx - _this.opts.offsetX) * _this.opts.ease;
+          _this.opts.offsetY += (_this.opts.ty - _this.opts.offsetY) * _this.opts.ease;
+          _this.opts.offsetRotation += (theta - _this.opts.offsetRotation) * _this.opts.ease;
+          _this.draw();
+          return start = new Date().getTime();
+        }
+      };
+    })(this))();
+    return this;
+  };
+
   Kaleidoscope.prototype.events = function() {
     var onMouseMoved, onRotation;
     this.opts.tx = this.opts.offsetX;
@@ -7244,28 +7261,9 @@ module.exports = Kaleidoscope = (function() {
     })(this);
     window.addEventListener('mousemove', onMouseMoved);
     window.addEventListener('devicemotion', onRotation);
-    (function(_this) {
-      return (function() {
-        var start, update;
-        start = new Date().getTime();
-        return (update = function() {
-          var delta, last, theta;
-          _requestAnimeFrame(update);
-          last = new Date().getTime();
-          if (last - start >= 16) {
-            if (_this.opts.interactive) {
-              delta = _this.opts.tr - _this.opts.offsetRotation;
-              theta = Math.atan2(Math.sin(delta), Math.cos(delta));
-              _this.opts.offsetX += (_this.opts.tx - _this.opts.offsetX) * _this.opts.ease;
-              _this.opts.offsetY += (_this.opts.ty - _this.opts.offsetY) * _this.opts.ease;
-              _this.opts.offsetRotation += (theta - _this.opts.offsetRotation) * _this.opts.ease;
-              _this.draw();
-              return start = new Date().getTime();
-            }
-          }
-        })();
-      });
-    })(this)();
+    if (this.opts.interactive) {
+      this.update();
+    }
     return this;
   };
 

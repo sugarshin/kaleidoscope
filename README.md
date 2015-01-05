@@ -22,6 +22,7 @@ http://sugarshin.github.io/kaleidoscope/
 git submodule update --init
 
 npm i
+bower i
 ```
 
 ## License

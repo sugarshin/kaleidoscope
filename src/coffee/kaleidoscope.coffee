@@ -96,6 +96,23 @@ module.exports =
         @context.restore()
       return this
 
+    update: ->
+      start = new Date().getTime()
+      do update = =>
+        _requestAnimeFrame update
+        last = new Date().getTime()
+        if last - start >= 16
+          delta = @opts.tr - @opts.offsetRotation
+          theta = Math.atan2(Math.sin(delta), Math.cos(delta))
+
+          @opts.offsetX += (@opts.tx - @opts.offsetX) * @opts.ease
+          @opts.offsetY += (@opts.ty - @opts.offsetY) * @opts.ease
+          @opts.offsetRotation += (theta - @opts.offsetRotation) * @opts.ease
+
+          @draw()
+          start = new Date().getTime()
+      return this
+
     events: ->
       @opts.tx = @opts.offsetX
       @opts.ty = @opts.offsetY
@@ -131,21 +148,6 @@ module.exports =
 
       window.addEventListener 'devicemotion', onRotation
 
-      do =>
-        start = new Date().getTime()
-        do update = =>
-          _requestAnimeFrame update
-          last = new Date().getTime()
-          if last - start >= 16
-            if @opts.interactive
-              delta = @opts.tr - @opts.offsetRotation
-              theta = Math.atan2(Math.sin(delta), Math.cos(delta))
-
-              @opts.offsetX += (@opts.tx - @opts.offsetX) * @opts.ease
-              @opts.offsetY += (@opts.ty - @opts.offsetY) * @opts.ease
-              @opts.offsetRotation += (theta - @opts.offsetRotation) * @opts.ease
-
-              do @draw
-              start = new Date().getTime()
+      @update() if @opts.interactive
 
       return this
