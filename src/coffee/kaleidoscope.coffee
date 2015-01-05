@@ -1,5 +1,5 @@
-$ = require 'jquery'
-_ = require 'underscore'
+# $ = require 'jquery'
+# _ = require 'underscore'
 
 Mixin = require './../../coffee-mixin/dest/mixin'
 Eventz = require './../../eventz/dest/eventz'
