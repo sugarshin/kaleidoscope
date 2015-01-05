@@ -7252,7 +7252,7 @@ module.exports = Kaleidoscope = (function() {
           var delta, last, theta;
           _requestAnimeFrame(update);
           last = new Date().getTime();
-          if (last - start >= 60) {
+          if (last - start >= 16) {
             if (_this.opts.interactive) {
               delta = _this.opts.tr - _this.opts.offsetRotation;
               theta = Math.atan2(Math.sin(delta), Math.cos(delta));

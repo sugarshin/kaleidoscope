@@ -136,7 +136,7 @@ module.exports =
         do update = =>
           _requestAnimeFrame update
           last = new Date().getTime()
-          if last - start >= 60
+          if last - start >= 16
             if @opts.interactive
               delta = @opts.tr - @opts.offsetRotation
               theta = Math.atan2(Math.sin(delta), Math.cos(delta))
