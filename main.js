@@ -7116,13 +7116,25 @@ var Kaleidoscope, _;
 _ = require("./../../bower_components/underscore/underscore.js");
 
 module.exports = Kaleidoscope = (function() {
-  var _anyRun;
+  var _anyRun, _cancelAnimeFrame, _requestAnimeFrame;
 
   _anyRun = false;
 
   Kaleidoscope.isRun = function() {
     return _anyRun;
   };
+
+  _requestAnimeFrame = (function() {
+    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
+      return window.setTimeout(callback, 1000 / 60);
+    };
+  })();
+
+  _cancelAnimeFrame = (function() {
+    return window.cancelAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || function(id) {
+      return window.clearTimeout(id);
+    };
+  })();
 
   Kaleidoscope.prototype.HALF_PI = Math.PI / 2;
 
@@ -7193,7 +7205,7 @@ module.exports = Kaleidoscope = (function() {
   };
 
   Kaleidoscope.prototype.events = function() {
-    var onMouseMoved, onRotation, update;
+    var onMouseMoved, onRotation;
     this.opts.tx = this.opts.offsetX;
     this.opts.ty = this.opts.offsetY;
     this.opts.tr = this.opts.offsetRotation;
@@ -7224,20 +7236,27 @@ module.exports = Kaleidoscope = (function() {
     })(this);
     window.addEventListener('mousemove', onMouseMoved);
     window.addEventListener('devicemotion', onRotation);
-    (update = (function(_this) {
-      return function() {
-        var delta, theta;
-        if (_this.opts.interactive) {
-          delta = _this.opts.tr - _this.opts.offsetRotation;
-          theta = Math.atan2(Math.sin(delta), Math.cos(delta));
-          _this.opts.offsetX += (_this.opts.tx - _this.opts.offsetX) * _this.opts.ease;
-          _this.opts.offsetY += (_this.opts.ty - _this.opts.offsetY) * _this.opts.ease;
-          _this.opts.offsetRotation += (theta - _this.opts.offsetRotation) * _this.opts.ease;
-          _this.draw();
-        }
-        return setTimeout(update, 1000 / 60);
-      };
-    })(this))();
+    (function(_this) {
+      return (function() {
+        var start, update;
+        start = new Date().getTime();
+        return (update = function() {
+          var delta, last, theta;
+          _requestAnimeFrame(update);
+          last = new Date().getTime();
+          if (last - start >= 1000 / 60) {
+            if (_this.opts.interactive) {
+              delta = _this.opts.tr - _this.opts.offsetRotation;
+              theta = Math.atan2(Math.sin(delta), Math.cos(delta));
+              _this.opts.offsetX += (_this.opts.tx - _this.opts.offsetX) * _this.opts.ease;
+              _this.opts.offsetY += (_this.opts.ty - _this.opts.offsetY) * _this.opts.ease;
+              _this.opts.offsetRotation += (theta - _this.opts.offsetRotation) * _this.opts.ease;
+              return _this.draw();
+            }
+          }
+        })();
+      });
+    })(this)();
     return this;
   };
 
