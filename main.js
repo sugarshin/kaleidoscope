@@ -6,15 +6,15 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var FileRead, Kaleidoscope, fileRead, inputFile;
 
-Kaleidoscope = require('./kaleidoscope');
-
 FileRead = require('./fileread');
+
+Kaleidoscope = require('./kaleidoscope');
 
 inputFile = document.getElementById('file');
 
 fileRead = new FileRead(inputFile);
 
-inputFile.addEventListener('change', function(ev) {
+fileRead.on('input:change', function(ev) {
   return fileRead.setImgSrc(ev).then(function(results) {
     var h, img, kaleidoscope, result, srcs, w;
     if (Kaleidoscope.isRun()) {
@@ -7045,6 +7045,7 @@ module.exports = FileRead = (function() {
   function FileRead(input, opts) {
     this.opts = _.extend({}, this.defaults, opts);
     this.input = input;
+    this.events();
   }
 
   FileRead.prototype.setImgSrc = function(event) {
@@ -7098,7 +7099,7 @@ module.exports = FileRead = (function() {
   FileRead.prototype.events = function() {
     return this.input.addEventListener('change', (function(_this) {
       return function(ev) {
-        return _this.setImgSrc(ev);
+        return _this.trigger('input:change', ev);
       };
     })(this));
   };
@@ -7110,15 +7111,9 @@ module.exports = FileRead = (function() {
 
 
 },{"../../coffee-mixin/dest/mixin":3,"../../eventz/dest/eventz":4,"./../../bower_components/underscore/underscore.js":2,"bluebird":7}],42:[function(require,module,exports){
-var Eventz, FileRead, Kaleidoscope, Mixin, _;
+var Kaleidoscope, _;
 
 _ = require("./../../bower_components/underscore/underscore.js");
-
-Mixin = require('./../../coffee-mixin/dest/mixin');
-
-Eventz = require('./../../eventz/dest/eventz');
-
-FileRead = require('./fileread');
 
 module.exports = Kaleidoscope = (function() {
   var _anyRun;
@@ -7203,10 +7198,10 @@ module.exports = Kaleidoscope = (function() {
     this.opts.ty = this.opts.offsetY;
     this.opts.tr = this.opts.offsetRotation;
     onMouseMoved = (function(_this) {
-      return function(event) {
+      return function(ev) {
         var dx, dy, hx, hy;
-        dx = event.pageX / window.innerWidth;
-        dy = event.pageY / window.innerHeight;
+        dx = ev.pageX / window.innerWidth;
+        dy = ev.pageY / window.innerHeight;
         hx = dx - 0.5;
         hy = dy - 0.5;
         _this.opts.tx = hx * _this.opts.radius * -2;
@@ -7252,4 +7247,4 @@ module.exports = Kaleidoscope = (function() {
 
 
 
-},{"./../../bower_components/underscore/underscore.js":2,"./../../coffee-mixin/dest/mixin":3,"./../../eventz/dest/eventz":4,"./fileread":41}]},{},[1]);
+},{"./../../bower_components/underscore/underscore.js":2}]},{},[1]);
