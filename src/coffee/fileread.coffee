@@ -42,7 +42,7 @@ module.exports =
                 # noop
                 else
                   alert 'An error occurred reading this file.'
-              reject ev.target.error
+              reject new Error('An error occurred reading this file.')# ev.target.error
 
             reader.readAsDataURL file
 
