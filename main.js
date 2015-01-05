@@ -16,17 +16,15 @@ fileRead = new FileRead(inputFile);
 
 inputFile.addEventListener('change', function(ev) {
   return fileRead.setImgSrc(ev).then(function(results) {
-    var el, i, img, src, _i, _len, _ref, _results;
-    el = document.getElementById('result');
-    _ref = results[0].getImgSrc();
-    _results = [];
-    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-      src = _ref[i];
-      img = document.createElement('img');
-      img.src = src;
-      _results.push(el.appendChild(img));
-    }
-    return _results;
+    var img, kaleidoscope;
+    img = document.createElement('img');
+    img.src = results[0].getImgSrc()[0];
+    kaleidoscope = new Kaleidoscope({
+      image: img,
+      slices: 10,
+      radius: 480
+    });
+    return kaleidoscope.initStyle().render();
   });
 });
 
@@ -7065,7 +7063,7 @@ module.exports = FileRead = (function() {
               default:
                 alert('An error occurred reading this file.');
             }
-            return reject(ev.target.error);
+            return reject(new Error('An error occurred reading this file.'));
           };
           return reader.readAsDataURL(file);
         }));
@@ -7100,7 +7098,9 @@ module.exports = FileRead = (function() {
 
 
 },{"../../coffee-mixin/dest/mixin":3,"../../eventz/dest/eventz":4,"./../../bower_components/underscore/underscore.js":2,"bluebird":7}],42:[function(require,module,exports){
-var Eventz, FileRead, Kaleidoscope, Mixin;
+var Eventz, FileRead, Kaleidoscope, Mixin, _;
+
+_ = require("./../../bower_components/underscore/underscore.js");
 
 Mixin = require('./../../coffee-mixin/dest/mixin');
 
@@ -7109,9 +7109,107 @@ Eventz = require('./../../eventz/dest/eventz');
 FileRead = require('./fileread');
 
 module.exports = Kaleidoscope = (function() {
-  function Kaleidoscope() {}
+  Kaleidoscope.prototype.HALF_PI = Math.PI / 2;
 
-  Mixin.include(Kaleidoscope, Eventz);
+  Kaleidoscope.prototype.TWO_PI = Math.PI * 2;
+
+  Kaleidoscope.prototype.defaults = {
+    offsetRotation: 0.0,
+    offsetScale: 1.0,
+    offsetX: 0.0,
+    offsetY: 0.0,
+    radius: 320,
+    slices: 10,
+    zoom: 1.0,
+    interactive: true,
+    ease: 0.1
+  };
+
+  function Kaleidoscope(opts) {
+    this.opts = _.extend({}, this.defaults, opts);
+    this.canvas = document.createElement('canvas');
+    this.context = this.canvas.getContext('2d');
+    this.events();
+  }
+
+  Kaleidoscope.prototype.initStyle = function() {
+    this.canvas.style.position = 'absolute';
+    this.canvas.style.marginLeft = -this.opts.radius + 'px';
+    this.canvas.style.marginTop = -this.opts.radius + 'px';
+    this.canvas.style.left = '50%';
+    this.canvas.style.top = '50%';
+    return this;
+  };
+
+  Kaleidoscope.prototype.render = function() {
+    document.body.appendChild(this.canvas);
+    return this;
+  };
+
+  Kaleidoscope.prototype.draw = function() {
+    var cx, i, scale, step, _i, _ref;
+    this.canvas.width = this.canvas.height = this.opts.radius * 2;
+    this.context.fillStyle = this.context.createPattern(this.opts.image, 'repeat');
+    scale = this.opts.zoom * (this.opts.radius / Math.min(this.opts.image.width, this.opts.image.height));
+    step = this.TWO_PI / this.opts.slices;
+    cx = this.opts.image.width / 2;
+    for (i = _i = 0, _ref = this.opts.slices; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      this.context.save();
+      this.context.translate(this.opts.radius, this.opts.radius);
+      this.context.rotate(i * step);
+      this.context.beginPath();
+      this.context.moveTo(-0.5, -0.5);
+      this.context.arc(0, 0, this.opts.radius, step * -0.51, step * 0.51);
+      this.context.lineTo(0.5, 0.5);
+      this.context.closePath();
+      this.context.rotate(this.HALF_PI);
+      this.context.scale(scale, scale);
+      this.context.scale([-1, 1][i % 2], 1);
+      this.context.translate(this.opts.offsetX - cx, this.opts.offsetY);
+      this.context.rotate(this.opts.offsetRotation);
+      this.context.scale(this.opts.offsetScale, this.opts.offsetScale);
+      this.context.fill();
+      this.context.restore();
+    }
+    return this;
+  };
+
+  Kaleidoscope.prototype.events = function() {
+    var onMouseMoved, update;
+    this.opts.tx = this.opts.offsetX;
+    this.opts.ty = this.opts.offsetY;
+    this.opts.tr = this.opts.offsetRotation;
+    onMouseMoved = (function(_this) {
+      return function(event) {
+        var cx, cy, dx, dy, hx, hy;
+        cx = window.innerWidth / 2;
+        cy = window.innerHeight / 2;
+        dx = event.pageX / window.innerWidth;
+        dy = event.pageY / window.innerHeight;
+        hx = dx - 0.5;
+        hy = dy - 0.5;
+        _this.opts.tx = hx * _this.opts.radius * -2;
+        _this.opts.ty = hy * _this.opts.radius * 2;
+        return _this.opts.tr = Math.atan2(hy, hx);
+      };
+    })(this);
+    window.addEventListener('mousemove', onMouseMoved);
+    (update = (function(_this) {
+      return function() {
+        var delta, theta;
+        if (_this.opts.interactive) {
+          delta = _this.opts.tr - _this.opts.offsetRotation;
+          theta = Math.atan2(Math.sin(delta), Math.cos(delta));
+          _this.opts.offsetX += (_this.opts.tx - _this.opts.offsetX) * _this.opts.ease;
+          _this.opts.offsetY += (_this.opts.ty - _this.opts.offsetY) * _this.opts.ease;
+          _this.opts.offsetRotation += (theta - _this.opts.offsetRotation) * _this.opts.ease;
+          _this.draw();
+        }
+        return setTimeout(update, 1000 / 60);
+      };
+    })(this))();
+    return this;
+  };
 
   return Kaleidoscope;
 
@@ -7119,4 +7217,4 @@ module.exports = Kaleidoscope = (function() {
 
 
 
-},{"./../../coffee-mixin/dest/mixin":3,"./../../eventz/dest/eventz":4,"./fileread":41}]},{},[1]);
+},{"./../../bower_components/underscore/underscore.js":2,"./../../coffee-mixin/dest/mixin":3,"./../../eventz/dest/eventz":4,"./fileread":41}]},{},[1]);
