@@ -16,9 +16,14 @@ fileRead = new FileRead(inputFile);
 
 inputFile.addEventListener('change', function(ev) {
   return fileRead.setImgSrc(ev).then(function(results) {
-    var h, img, kaleidoscope, w;
+    var h, img, kaleidoscope, result, srcs, w;
+    if (Kaleidoscope.isRun()) {
+      result = document.getElementById('result');
+      result.innerHTML = '';
+    }
     img = document.createElement('img');
-    img.src = results[0].getImgSrc()[0];
+    srcs = results[0].getImgSrc();
+    img.src = srcs[srcs.length - 1];
     if (window.ontouchstart !== void 0) {
       w = window.screen.availWidth / 2;
       h = window.screen.availHeight / 2;
@@ -7116,6 +7121,14 @@ Eventz = require('./../../eventz/dest/eventz');
 FileRead = require('./fileread');
 
 module.exports = Kaleidoscope = (function() {
+  var _anyRun;
+
+  _anyRun = false;
+
+  Kaleidoscope.isRun = function() {
+    return _anyRun;
+  };
+
   Kaleidoscope.prototype.HALF_PI = Math.PI / 2;
 
   Kaleidoscope.prototype.TWO_PI = Math.PI * 2;
@@ -7137,6 +7150,7 @@ module.exports = Kaleidoscope = (function() {
     this.canvas = document.createElement('canvas');
     this.context = this.canvas.getContext('2d');
     this.events();
+    _anyRun = true;
   }
 
   Kaleidoscope.prototype.initStyle = function() {
@@ -7149,7 +7163,9 @@ module.exports = Kaleidoscope = (function() {
   };
 
   Kaleidoscope.prototype.render = function() {
-    document.body.appendChild(this.canvas);
+    var result;
+    result = document.getElementById('result');
+    result.appendChild(this.canvas);
     return this;
   };
 
@@ -7182,15 +7198,13 @@ module.exports = Kaleidoscope = (function() {
   };
 
   Kaleidoscope.prototype.events = function() {
-    var onMouseMoved, update;
+    var onMouseMoved, onRotation, update;
     this.opts.tx = this.opts.offsetX;
     this.opts.ty = this.opts.offsetY;
     this.opts.tr = this.opts.offsetRotation;
     onMouseMoved = (function(_this) {
       return function(event) {
-        var cx, cy, dx, dy, hx, hy;
-        cx = window.innerWidth / 2;
-        cy = window.innerHeight / 2;
+        var dx, dy, hx, hy;
         dx = event.pageX / window.innerWidth;
         dy = event.pageY / window.innerHeight;
         hx = dx - 0.5;
@@ -7200,7 +7214,21 @@ module.exports = Kaleidoscope = (function() {
         return _this.opts.tr = Math.atan2(hy, hx);
       };
     })(this);
+    onRotation = (function(_this) {
+      return function(ev) {
+        var dx, hx, rR;
+        rR = ev.rotationRate;
+        rR.alpha;
+        if (rR.alpha > 1) {
+          dx = Math.floor(rR.alpha);
+          hx = dx;
+          _this.opts.tx = hx * _this.opts.radius;
+          return _this.opts.tr = Math.atan2(_this.opts.ty, hx);
+        }
+      };
+    })(this);
     window.addEventListener('mousemove', onMouseMoved);
+    window.addEventListener('devicemotion', onRotation);
     (update = (function(_this) {
       return function() {
         var delta, theta;

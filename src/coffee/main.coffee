@@ -8,8 +8,16 @@ inputFile.addEventListener 'change', (ev) ->
   fileRead
   .setImgSrc ev
   .then (results) ->
+    # todo -----------------------------
+    if Kaleidoscope.isRun()
+      result = document.getElementById 'result'
+      result.innerHTML = ''
+
     img = document.createElement 'img'
-    img.src = results[0].getImgSrc()[0]
+
+    # todo -----------------------------
+    srcs = results[0].getImgSrc()
+    img.src = srcs[srcs.length - 1]
 
     if window.ontouchstart isnt undefined
       w = window.screen.availWidth / 2

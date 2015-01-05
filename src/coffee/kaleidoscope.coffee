@@ -7,6 +7,8 @@ FileRead = require './fileread'
 
 module.exports =
   class Kaleidoscope
+    _anyRun = false
+    @isRun: -> _anyRun
 
     HALF_PI: Math.PI / 2
     TWO_PI: Math.PI * 2
@@ -28,6 +30,7 @@ module.exports =
       @canvas = document.createElement 'canvas'
       @context = @canvas.getContext '2d'
       @events()
+      _anyRun = true
 
     initStyle: ->
       @canvas.style.position = 'absolute'
@@ -38,7 +41,8 @@ module.exports =
       return this
 
     render: ->
-      document.body.appendChild @canvas
+      result = document.getElementById 'result'
+      result.appendChild @canvas
       return this
 
     draw: ->
@@ -77,9 +81,6 @@ module.exports =
       @opts.tr = @opts.offsetRotation
 
       onMouseMoved = (event) =>
-        cx = window.innerWidth / 2
-        cy = window.innerHeight / 2
-
         dx = event.pageX / window.innerWidth
         dy = event.pageY / window.innerHeight
 
@@ -90,7 +91,24 @@ module.exports =
         @opts.ty = hy * @opts.radius * 2
         @opts.tr = Math.atan2 hy, hx
 
+      # todo ---------------------------
+      onRotation = (ev) =>
+        rR = ev.rotationRate
+        rR.alpha
+        if rR.alpha > 1
+          dx = Math.floor rR.alpha
+          # dy = Math.floor rR.beta
+
+          hx = dx# - 0.5
+          # hy = dy# - 0.5
+
+          @opts.tx = hx * @opts.radius# * -1.5
+          # @opts.ty = hy * @opts.radius * 1.5
+          @opts.tr = Math.atan2 @opts.ty, hx
+
       window.addEventListener 'mousemove', onMouseMoved
+
+      window.addEventListener 'devicemotion', onRotation
 
       do update = =>
         if @opts.interactive
