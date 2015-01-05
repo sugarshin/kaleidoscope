@@ -5,6 +5,28 @@ module.exports =
     _anyRun = false
     @isRun: -> _anyRun
 
+    _requestAnimeFrame = do ->
+      return (
+        window.requestAnimationFrame or
+        window.webkitRequestAnimationFrame or
+        window.mozRequestAnimationFrame or
+        window.msRequestAnimationFrame or
+        window.oRequestAnimationFrame or
+        (callback) ->
+          window.setTimeout callback, 1000 / 60
+      )
+
+    _cancelAnimeFrame = do ->
+      return (
+        window.cancelAnimationFrame or
+        window.webkitCancelAnimationFrame or
+        window.mozCancelAnimationFrame or
+        window.msCancelAnimationFrame or
+        window.oCancelAnimationFrame or
+        (id) ->
+          window.clearTimeout id
+      )
+
     HALF_PI: Math.PI / 2
     TWO_PI: Math.PI * 2
 
@@ -105,17 +127,20 @@ module.exports =
 
       window.addEventListener 'devicemotion', onRotation
 
-      do update = =>
-        if @opts.interactive
-          delta = @opts.tr - @opts.offsetRotation
-          theta = Math.atan2(Math.sin(delta), Math.cos(delta))
+      do =>
+        start = new Date().getTime()
+        do update = =>
+          _requestAnimeFrame update
+          last = new Date().getTime()
+          if last - start >= 1000 / 60
+            if @opts.interactive
+              delta = @opts.tr - @opts.offsetRotation
+              theta = Math.atan2(Math.sin(delta), Math.cos(delta))
 
-          @opts.offsetX += (@opts.tx - @opts.offsetX) * @opts.ease
-          @opts.offsetY += (@opts.ty - @opts.offsetY) * @opts.ease
-          @opts.offsetRotation += (theta - @opts.offsetRotation) * @opts.ease
+              @opts.offsetX += (@opts.tx - @opts.offsetX) * @opts.ease
+              @opts.offsetY += (@opts.ty - @opts.offsetY) * @opts.ease
+              @opts.offsetRotation += (theta - @opts.offsetRotation) * @opts.ease
 
-          do @draw
-
-        setTimeout update, 1000 / 60
+              do @draw
 
       return this
