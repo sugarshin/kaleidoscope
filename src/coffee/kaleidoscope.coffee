@@ -146,5 +146,6 @@ module.exports =
               @opts.offsetRotation += (theta - @opts.offsetRotation) * @opts.ease
 
               do @draw
+              start = new Date().getTime()
 
       return this

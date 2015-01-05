@@ -1517,12 +1517,13 @@ module.exports = Mixin = (function() {
 
 },{}],4:[function(require,module,exports){
 /*!
- * @license eventz v1.2.0
+ * @license eventz v1.2.1
  * (c) 2015 sugarshin https://github.com/sugarshin
  * License: MIT
  * Fork on https://github.com/Takazudo/EveEve
  */
 (function() {
+  'use strict';
   var Eventz,
     __slice = [].slice;
 
@@ -7258,7 +7259,8 @@ module.exports = Kaleidoscope = (function() {
               _this.opts.offsetX += (_this.opts.tx - _this.opts.offsetX) * _this.opts.ease;
               _this.opts.offsetY += (_this.opts.ty - _this.opts.offsetY) * _this.opts.ease;
               _this.opts.offsetRotation += (theta - _this.opts.offsetRotation) * _this.opts.ease;
-              return _this.draw();
+              _this.draw();
+              return start = new Date().getTime();
             }
           }
         })();
