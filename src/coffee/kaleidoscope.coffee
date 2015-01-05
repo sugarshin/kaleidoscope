@@ -49,6 +49,10 @@ module.exports =
       @events()
       _anyRun = true
 
+    setImage: (el) ->
+      @opts.image = el
+      return this
+
     initStyle: ->
       @canvas.style.position = 'absolute'
       @canvas.style.marginLeft = -@opts.radius + 'px'
@@ -132,7 +136,7 @@ module.exports =
         do update = =>
           _requestAnimeFrame update
           last = new Date().getTime()
-          if last - start >= 1000 / 60
+          if last - start >= 60
             if @opts.interactive
               delta = @opts.tr - @opts.offsetRotation
               theta = Math.atan2(Math.sin(delta), Math.cos(delta))
