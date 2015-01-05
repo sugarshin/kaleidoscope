@@ -16,13 +16,20 @@ fileRead = new FileRead(inputFile);
 
 inputFile.addEventListener('change', function(ev) {
   return fileRead.setImgSrc(ev).then(function(results) {
-    var img, kaleidoscope;
+    var h, img, kaleidoscope, w;
     img = document.createElement('img');
     img.src = results[0].getImgSrc()[0];
+    if (window.ontouchstart !== void 0) {
+      w = window.screen.availWidth / 2;
+      h = window.screen.availHeight / 2;
+    } else {
+      w = window.innerWidth / 2;
+      h = window.innerHeight / 2;
+    }
     kaleidoscope = new Kaleidoscope({
       image: img,
       slices: 10,
-      radius: 480
+      radius: Math.min(w, h)
     });
     return kaleidoscope.initStyle().render();
   });
