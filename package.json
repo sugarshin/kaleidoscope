@@ -27,5 +27,8 @@
     "nib": "^1.0.4",
     "require-dir": "^0.1.0",
     "vinyl-source-stream": "^1.0.0"
+  },
+  "dependencies": {
+    "bluebird": "^2.5.3"
   }
 }

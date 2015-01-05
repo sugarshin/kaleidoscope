@@ -36,5 +36,5 @@ gulp.task 'default', ['serve'], ->
   gulp.watch ["./#{$.SRC}/**/*.styl"], ['stylus', reload]
 
 
-# After -> 'gh-pages', 'replace-normal'
+# After -> git ps -> 'gh-pages' -> 'replace-normal'
 gulp.task 'build', sequence ['jade', 'stylus'], 'browserify', 'header', 'uglify', 'replace-min'
