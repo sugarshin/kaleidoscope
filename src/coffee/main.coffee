@@ -1,10 +1,10 @@
-Kaleidoscope = require './kaleidoscope'
 FileRead = require './fileread'
+Kaleidoscope = require './kaleidoscope'
 
 inputFile = document.getElementById 'file'
 fileRead = new FileRead inputFile
 
-inputFile.addEventListener 'change', (ev) ->
+fileRead.on 'input:change', (ev) ->
   fileRead
   .setImgSrc ev
   .then (results) ->
@@ -31,4 +31,4 @@ inputFile.addEventListener 'change', (ev) ->
       slices: 10
       radius: Math.min w, h
 
-    kaleidoscope.initStyle().render()#.events()
+    kaleidoscope.initStyle().render()

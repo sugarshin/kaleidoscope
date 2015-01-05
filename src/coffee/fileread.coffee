@@ -4,7 +4,6 @@ _ = require 'underscore'
 Mixin = require '../../coffee-mixin/dest/mixin'
 Eventz = require '../../eventz/dest/eventz'
 
-
 module.exports =
   class FileRead
     Mixin.include @, Eventz
@@ -15,8 +14,7 @@ module.exports =
     constructor: (input, opts) ->
       @opts = _.extend {}, @defaults, opts
       @input = input
-      # @$input = $(input)
-      # @events()
+      @events()
 
     setImgSrc: (event) ->
       promises = []
@@ -51,4 +49,4 @@ module.exports =
     getImgSrc: -> @_imgSrcs
 
     events: ->
-      @input.addEventListener 'change', (ev) => @setImgSrc ev
+      @input.addEventListener 'change', (ev) => @trigger 'input:change', ev

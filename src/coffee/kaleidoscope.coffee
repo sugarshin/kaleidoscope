@@ -1,10 +1,5 @@
 _ = require 'underscore'
 
-Mixin = require './../../coffee-mixin/dest/mixin'
-Eventz = require './../../eventz/dest/eventz'
-
-FileRead = require './fileread'
-
 module.exports =
   class Kaleidoscope
     _anyRun = false
@@ -80,9 +75,9 @@ module.exports =
       @opts.ty = @opts.offsetY
       @opts.tr = @opts.offsetRotation
 
-      onMouseMoved = (event) =>
-        dx = event.pageX / window.innerWidth
-        dy = event.pageY / window.innerHeight
+      onMouseMoved = (ev) =>
+        dx = ev.pageX / window.innerWidth
+        dy = ev.pageY / window.innerHeight
 
         hx = dx - 0.5
         hy = dy - 0.5
