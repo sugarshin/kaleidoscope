@@ -1,8 +1,12 @@
 FileRead = require './fileread'
+Range = require './range'
 Kaleidoscope = require './kaleidoscope'
 
 inputFile = document.getElementById 'file'
 fileRead = new FileRead inputFile
+
+inputRange = document.getElementById 'range'
+range = new Range inputRange, text: document.getElementById 'result-range'
 
 # todo ---------------------------------
 instance = {}
@@ -30,8 +34,12 @@ fileRead.on 'input:change', (ev) ->
       h = window.innerHeight / 2
 
     instance.kaleidoscope = new Kaleidoscope
+      output: document.getElementById 'output'
       image: img
-      slices: 10
+      slices: range.getVal()
       radius: Math.min w, h
 
-    instance.kaleidoscope.initStyle().render()
+range.on 'input:change', (ev) ->
+  # todo -----------------------------
+  if Kaleidoscope.isRun()
+    instance.kaleidoscope.setSlices range.getVal()

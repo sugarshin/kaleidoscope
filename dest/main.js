@@ -4,15 +4,23 @@
  * License: MIT
  */
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var FileRead, Kaleidoscope, fileRead, inputFile, instance;
+var FileRead, Kaleidoscope, Range, fileRead, inputFile, inputRange, instance, range;
 
 FileRead = require('./fileread');
+
+Range = require('./range');
 
 Kaleidoscope = require('./kaleidoscope');
 
 inputFile = document.getElementById('file');
 
 fileRead = new FileRead(inputFile);
+
+inputRange = document.getElementById('range');
+
+range = new Range(inputRange, {
+  text: document.getElementById('result-range')
+});
 
 instance = {};
 
@@ -33,18 +41,24 @@ fileRead.on('input:change', function(ev) {
       w = window.innerWidth / 2;
       h = window.innerHeight / 2;
     }
-    instance.kaleidoscope = new Kaleidoscope({
+    return instance.kaleidoscope = new Kaleidoscope({
+      output: document.getElementById('output'),
       image: img,
-      slices: 10,
+      slices: range.getVal(),
       radius: Math.min(w, h)
     });
-    return instance.kaleidoscope.initStyle().render();
   });
+});
+
+range.on('input:change', function(ev) {
+  if (Kaleidoscope.isRun()) {
+    return instance.kaleidoscope.setSlices(range.getVal());
+  }
 });
 
 
 
-},{"./fileread":41,"./kaleidoscope":42}],2:[function(require,module,exports){
+},{"./fileread":41,"./kaleidoscope":42,"./range":43}],2:[function(require,module,exports){
 //     Underscore.js 1.7.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -7046,8 +7060,8 @@ module.exports = FileRead = (function() {
   };
 
   function FileRead(input, opts) {
-    this.opts = _.extend({}, this.defaults, opts);
     this.input = input;
+    this.opts = _.extend({}, this.defaults, opts);
     this.events();
   }
 
@@ -7144,6 +7158,8 @@ module.exports = Kaleidoscope = (function() {
   Kaleidoscope.prototype.TWO_PI = Math.PI * 2;
 
   Kaleidoscope.prototype.defaults = {
+    output: null,
+    image: null,
     offsetRotation: 0.0,
     offsetScale: 1.0,
     offsetX: 0.0,
@@ -7159,28 +7175,33 @@ module.exports = Kaleidoscope = (function() {
     this.opts = _.extend({}, this.defaults, opts);
     this.canvas = document.createElement('canvas');
     this.context = this.canvas.getContext('2d');
+    this.initStyle();
+    this.render();
     this.events();
     _anyRun = true;
   }
+
+  Kaleidoscope.prototype.initStyle = function() {
+    this.canvas.style.position = 'absolute';
+    this.canvas.style.marginTop = "" + (-this.opts.radius) + "px";
+    this.canvas.style.marginLeft = "" + (-this.opts.radius) + "px";
+    this.canvas.style.top = '50%';
+    this.canvas.style.left = '50%';
+    return this;
+  };
+
+  Kaleidoscope.prototype.render = function() {
+    this.opts.output.appendChild(this.canvas);
+    return this;
+  };
 
   Kaleidoscope.prototype.setImage = function(el) {
     this.opts.image = el;
     return this;
   };
 
-  Kaleidoscope.prototype.initStyle = function() {
-    this.canvas.style.position = 'absolute';
-    this.canvas.style.marginLeft = -this.opts.radius + 'px';
-    this.canvas.style.marginTop = -this.opts.radius + 'px';
-    this.canvas.style.left = '50%';
-    this.canvas.style.top = '50%';
-    return this;
-  };
-
-  Kaleidoscope.prototype.render = function() {
-    var result;
-    result = document.getElementById('result');
-    result.appendChild(this.canvas);
+  Kaleidoscope.prototype.setSlices = function(num) {
+    this.opts.slices = num;
     return this;
   };
 
@@ -7220,7 +7241,7 @@ module.exports = Kaleidoscope = (function() {
         var delta, last, theta;
         _requestAnimeFrame(update);
         last = new Date().getTime();
-        if (last - start >= 16) {
+        if (last - start > 16) {
           delta = _this.opts.tr - _this.opts.offsetRotation;
           theta = Math.atan2(Math.sin(delta), Math.cos(delta));
           _this.opts.offsetX += (_this.opts.tx - _this.opts.offsetX) * _this.opts.ease;
@@ -7278,4 +7299,61 @@ module.exports = Kaleidoscope = (function() {
 
 
 
-},{"./../../bower_components/underscore/underscore.js":2}]},{},[1]);
+},{"./../../bower_components/underscore/underscore.js":2}],43:[function(require,module,exports){
+var Eventz, Mixin, Range, _;
+
+_ = require("./../../bower_components/underscore/underscore.js");
+
+Mixin = require('../../coffee-mixin/dest/mixin');
+
+Eventz = require('../../eventz/dest/eventz');
+
+module.exports = Range = (function() {
+  Mixin.include(Range, Eventz);
+
+  Range.prototype.defaults = {
+    text: null
+  };
+
+  function Range(input, opts) {
+    this.input = input;
+    this.opts = _.extend({}, this.defaults, opts);
+    this.setVal(this.input.value);
+    this.events();
+  }
+
+  Range.prototype.changeText = function(num) {
+    this.opts.text.innerText = num;
+    return this;
+  };
+
+  Range.prototype.setVal = function(val) {
+    this._val = val;
+    return this;
+  };
+
+  Range.prototype.getVal = function() {
+    return this._val;
+  };
+
+  Range.prototype.events = function() {
+    this.input.addEventListener('input', (function(_this) {
+      return function(ev) {
+        return _this.changeText(ev.target.value);
+      };
+    })(this));
+    return this.input.addEventListener('change', (function(_this) {
+      return function(ev) {
+        _this.setVal(parseInt(ev.target.value, 10));
+        return _this.trigger('input:change', ev);
+      };
+    })(this));
+  };
+
+  return Range;
+
+})();
+
+
+
+},{"../../coffee-mixin/dest/mixin":3,"../../eventz/dest/eventz":4,"./../../bower_components/underscore/underscore.js":2}]},{},[1]);

@@ -11,9 +11,8 @@ module.exports =
     defaults:
       type: 'dataURL'
 
-    constructor: (input, opts) ->
+    constructor: (@input, opts) ->
       @opts = _.extend {}, @defaults, opts
-      @input = input
       @events()
 
     setImgSrc: (event) ->

@@ -31,6 +31,8 @@ module.exports =
     TWO_PI: Math.PI * 2
 
     defaults:
+      output: null
+      image: null
       offsetRotation: 0.0
       offsetScale: 1.0
       offsetX: 0.0
@@ -46,24 +48,31 @@ module.exports =
 
       @canvas = document.createElement 'canvas'
       @context = @canvas.getContext '2d'
+
+      @initStyle()
+      @render()
       @events()
+
       _anyRun = true
+
+    initStyle: ->
+      @canvas.style.position = 'absolute'
+      @canvas.style.marginTop = "#{-@opts.radius}px"
+      @canvas.style.marginLeft = "#{-@opts.radius}px"
+      @canvas.style.top = '50%'
+      @canvas.style.left = '50%'
+      return this
+
+    render: ->
+      @opts.output.appendChild @canvas
+      return this
 
     setImage: (el) ->
       @opts.image = el
       return this
 
-    initStyle: ->
-      @canvas.style.position = 'absolute'
-      @canvas.style.marginLeft = -@opts.radius + 'px'
-      @canvas.style.marginTop = -@opts.radius + 'px'
-      @canvas.style.left = '50%'
-      @canvas.style.top = '50%'
-      return this
-
-    render: ->
-      result = document.getElementById 'result'
-      result.appendChild @canvas
+    setSlices: (num) ->
+      @opts.slices = num
       return this
 
     draw: ->
@@ -101,7 +110,7 @@ module.exports =
       do update = =>
         _requestAnimeFrame update
         last = new Date().getTime()
-        if last - start >= 16
+        if last - start > 16
           delta = @opts.tr - @opts.offsetRotation
           theta = Math.atan2(Math.sin(delta), Math.cos(delta))
 
