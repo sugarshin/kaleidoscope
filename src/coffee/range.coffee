@@ -13,6 +13,7 @@ module.exports =
     constructor: (@input, opts) ->
       @opts = _.extend {}, @defaults, opts
       @setVal @input.value
+      @changeText @getVal()
       @events()
 
     changeText: (num) ->
