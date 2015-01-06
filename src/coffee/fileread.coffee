@@ -15,6 +15,24 @@ module.exports =
       @opts = _.extend {}, @defaults, opts
       @events()
 
+    _loadedFunc: (ev, resolve) ->
+      @_imgSrcs or= []
+      @_imgSrcs.push ev.target.result
+      # @_imgTags.push "<img src='#{ev.target.result}' alt=''>"
+      resolve @
+
+    _errorFunc: (ev, reject) ->
+      switch ev.target.error.code
+        when ev.target.error.NOT_FOUND_ERR
+          alert 'File Not Found!'
+        when ev.target.error.NOT_READABLE_ERR
+          alert 'File is not readable'
+        when ev.target.error.ABORT_ERR
+        # noop
+        else
+          alert 'An error occurred reading this file.'
+      reject new Error('An error occurred reading this file.')# ev.
+
     setImgSrc: (event) ->
       promises = []
       for file, i in event.target.files
@@ -24,22 +42,10 @@ module.exports =
             reader = new FileReader
 
             reader.onload = (ev) =>
-              @_imgSrcs or= []
-              @_imgSrcs.push ev.target.result
-              # @_imgTags.push "<img src='#{ev.target.result}' alt=''>"
-              resolve @
+              @_loadedFunc ev, resolve
 
-            reader.onerror = (ev) ->
-              switch ev.target.error.code
-                when ev.target.error.NOT_FOUND_ERR
-                  alert 'File Not Found!'
-                when ev.target.error.NOT_READABLE_ERR
-                  alert 'File is not readable'
-                when ev.target.error.ABORT_ERR
-                # noop
-                else
-                  alert 'An error occurred reading this file.'
-              reject new Error('An error occurred reading this file.')# ev.target.error
+            reader.onerror = (ev) =>
+              @_errorFunc ev, reject
 
             reader.readAsDataURL file
 
