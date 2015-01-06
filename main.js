@@ -7065,6 +7065,28 @@ module.exports = FileRead = (function() {
     this.events();
   }
 
+  FileRead.prototype._loadedFunc = function(ev, resolve) {
+    this._imgSrcs || (this._imgSrcs = []);
+    this._imgSrcs.push(ev.target.result);
+    return resolve(this);
+  };
+
+  FileRead.prototype._errorFunc = function(ev, reject) {
+    switch (ev.target.error.code) {
+      case ev.target.error.NOT_FOUND_ERR:
+        alert('File Not Found!');
+        break;
+      case ev.target.error.NOT_READABLE_ERR:
+        alert('File is not readable');
+        break;
+      case ev.target.error.ABORT_ERR:
+        break;
+      default:
+        alert('An error occurred reading this file.');
+    }
+    return reject(new Error('An error occurred reading this file.'));
+  };
+
   FileRead.prototype.setImgSrc = function(event) {
     var file, i, promiseAll, promises, _fn, _i, _len, _ref;
     promises = [];
@@ -7076,24 +7098,10 @@ module.exports = FileRead = (function() {
           var reader;
           reader = new FileReader;
           reader.onload = function(ev) {
-            _this._imgSrcs || (_this._imgSrcs = []);
-            _this._imgSrcs.push(ev.target.result);
-            return resolve(_this);
+            return _this._loadedFunc(ev, resolve);
           };
           reader.onerror = function(ev) {
-            switch (ev.target.error.code) {
-              case ev.target.error.NOT_FOUND_ERR:
-                alert('File Not Found!');
-                break;
-              case ev.target.error.NOT_READABLE_ERR:
-                alert('File is not readable');
-                break;
-              case ev.target.error.ABORT_ERR:
-                break;
-              default:
-                alert('An error occurred reading this file.');
-            }
-            return reject(new Error('An error occurred reading this file.'));
+            return _this._errorFunc(ev, reject);
           };
           return reader.readAsDataURL(file);
         }));
