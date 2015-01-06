@@ -7327,6 +7327,7 @@ module.exports = Range = (function() {
     this.input = input;
     this.opts = _.extend({}, this.defaults, opts);
     this.setVal(this.input.value);
+    this.changeText(this.getVal());
     this.events();
   }
 
