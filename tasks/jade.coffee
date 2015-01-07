@@ -17,5 +17,5 @@ gulp.task 'jade', ->
   gulp.src "#{$.SRC}/*.jade"
     .pipe plumber
       errorHandler: notify.onError '<%= error.message %>'
-    .pipe jade pretty: true
+    .pipe jade()# pretty: true
     .pipe gulp.dest $.DEST
