@@ -9,16 +9,30 @@ module.exports =
     Mixin.include @, Eventz
 
     defaults:
-      type: 'dataURL'
+      result: null
 
     constructor: (@input, opts) ->
       @opts = _.extend {}, @defaults, opts
       @events()
 
+    outputResult: (src) ->
+      div = document.createElement 'div'
+      div.className = 'result-file-image'
+
+      img = document.createElement 'img'
+      img.src = src
+
+      div.appendChild img
+
+      @_resultImgsEl or= []
+      @_resultImgsEl.push div
+      @opts.result.appendChild div
+      return this
+
     _loadedFunc: (ev, resolve) ->
       @_imgSrcs or= []
       @_imgSrcs.push ev.target.result
-      # @_imgTags.push "<img src='#{ev.target.result}' alt=''>"
+      # @outputResult ev.target.result
       resolve @
 
     _errorFunc: (ev, reject) ->
@@ -54,4 +68,8 @@ module.exports =
     getImgSrc: -> @_imgSrcs
 
     events: ->
-      @input.addEventListener 'change', (ev) => @trigger 'input:change', ev
+      @input.addEventListener 'change', (ev) =>
+        @trigger 'input:change', ev
+
+      @opts.result.addEventListener 'click', (ev) =>
+        @trigger 'result:click', ev

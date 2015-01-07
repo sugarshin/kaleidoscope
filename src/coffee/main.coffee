@@ -3,7 +3,7 @@ Range = require './range'
 Kaleidoscope = require './kaleidoscope'
 
 inputFile = document.getElementById 'file'
-fileRead = new FileRead inputFile
+fileRead = new FileRead inputFile, result: document.getElementById 'result-file'
 
 inputRange = document.getElementById 'range'
 range = new Range inputRange, text: document.getElementById 'result-range'
@@ -20,6 +20,8 @@ fileRead.on 'input:change', (ev) ->
     # todo -----------------------------
     srcs = results[0].getImgSrc()
     img.src = srcs[srcs.length - 1]
+
+    fileRead.outputResult srcs[srcs.length - 1]
 
     # todo -----------------------------
     if Kaleidoscope.isRun()
@@ -38,6 +40,14 @@ fileRead.on 'input:change', (ev) ->
       image: img
       slices: range.getVal()
       radius: Math.min w, h
+
+fileRead.on 'result:click', (ev) ->
+  target = ev.target
+  if Kaleidoscope.isRun() and
+  target.tagName.toLowerCase() is 'img'
+    img = document.createElement 'img'
+    img.src = target.currentSrc
+    instance.kaleidoscope.setImage img
 
 range.on 'input:change', (ev) ->
   # todo -----------------------------
