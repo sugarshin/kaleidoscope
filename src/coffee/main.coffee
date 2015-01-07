@@ -46,7 +46,7 @@ fileRead.on 'result:click', (ev) ->
   if Kaleidoscope.isRun() and
   target.tagName.toLowerCase() is 'img'
     img = document.createElement 'img'
-    img.src = target.currentSrc
+    img.src = target.src
     instance.kaleidoscope.setImage img
 
 range.on 'input:change', (ev) ->
