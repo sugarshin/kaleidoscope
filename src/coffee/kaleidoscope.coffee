@@ -42,6 +42,7 @@ module.exports =
       zoom: 1.0
       interactive: true
       ease: 0.1
+      fps: 60
 
     constructor: (opts) ->
       @opts = _.extend {}, @defaults, opts
@@ -110,7 +111,7 @@ module.exports =
       do update = =>
         _requestAnimeFrame update
         last = new Date().getTime()
-        if last - start > 16
+        if last - start >= 1000 / @opts.fps
           delta = @opts.tr - @opts.offsetRotation
           theta = Math.atan2(Math.sin(delta), Math.cos(delta))
 

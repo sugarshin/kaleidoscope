@@ -7176,7 +7176,8 @@ module.exports = Kaleidoscope = (function() {
     slices: 10,
     zoom: 1.0,
     interactive: true,
-    ease: 0.1
+    ease: 0.1,
+    fps: 60
   };
 
   function Kaleidoscope(opts) {
@@ -7249,7 +7250,7 @@ module.exports = Kaleidoscope = (function() {
         var delta, last, theta;
         _requestAnimeFrame(update);
         last = new Date().getTime();
-        if (last - start > 16) {
+        if (last - start >= 1000 / _this.opts.fps) {
           delta = _this.opts.tr - _this.opts.offsetRotation;
           theta = Math.atan2(Math.sin(delta), Math.cos(delta));
           _this.opts.offsetX += (_this.opts.tx - _this.opts.offsetX) * _this.opts.ease;
