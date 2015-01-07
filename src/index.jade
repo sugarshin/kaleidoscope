@@ -9,10 +9,11 @@ html(lang="ja")
     link(rel="stylesheet" href="index.css")
   body
     #output
-    input(type="file" accept="image/*" id="file")
-    p 画像を選択してね
-    input(type="range" value="15" min="3" step="1" max="30" id="range")
-    span#result-range
-    p 分割数を指定してね
+    .control
+      input(type="file" accept="image/*" id="file")
+      p 画像を選択してね
+      input(type="range" value="16" min="3" step="1" max="32" id="range")
+      span#result-range
+      p 分割数を指定してね
 
     script(src="main.js")
