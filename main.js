@@ -14,7 +14,9 @@ Kaleidoscope = require('./kaleidoscope');
 
 inputFile = document.getElementById('file');
 
-fileRead = new FileRead(inputFile);
+fileRead = new FileRead(inputFile, {
+  result: document.getElementById('result-file')
+});
 
 inputRange = document.getElementById('range');
 
@@ -30,6 +32,7 @@ fileRead.on('input:change', function(ev) {
     img = document.createElement('img');
     srcs = results[0].getImgSrc();
     img.src = srcs[srcs.length - 1];
+    fileRead.outputResult(srcs[srcs.length - 1]);
     if (Kaleidoscope.isRun()) {
       instance.kaleidoscope.setImage(img);
       return;
@@ -48,6 +51,16 @@ fileRead.on('input:change', function(ev) {
       radius: Math.min(w, h)
     });
   });
+});
+
+fileRead.on('result:click', function(ev) {
+  var img, target;
+  target = ev.target;
+  if (Kaleidoscope.isRun() && target.tagName.toLowerCase() === 'img') {
+    img = document.createElement('img');
+    img.src = target.currentSrc;
+    return instance.kaleidoscope.setImage(img);
+  }
 });
 
 range.on('input:change', function(ev) {
@@ -7056,7 +7069,7 @@ module.exports = FileRead = (function() {
   Mixin.include(FileRead, Eventz);
 
   FileRead.prototype.defaults = {
-    type: 'dataURL'
+    result: null
   };
 
   function FileRead(input, opts) {
@@ -7064,6 +7077,19 @@ module.exports = FileRead = (function() {
     this.opts = _.extend({}, this.defaults, opts);
     this.events();
   }
+
+  FileRead.prototype.outputResult = function(src) {
+    var div, img;
+    div = document.createElement('div');
+    div.className = 'result-file-image';
+    img = document.createElement('img');
+    img.src = src;
+    div.appendChild(img);
+    this._resultImgsEl || (this._resultImgsEl = []);
+    this._resultImgsEl.push(div);
+    this.opts.result.appendChild(div);
+    return this;
+  };
 
   FileRead.prototype._loadedFunc = function(ev, resolve) {
     this._imgSrcs || (this._imgSrcs = []);
@@ -7122,9 +7148,14 @@ module.exports = FileRead = (function() {
   };
 
   FileRead.prototype.events = function() {
-    return this.input.addEventListener('change', (function(_this) {
+    this.input.addEventListener('change', (function(_this) {
       return function(ev) {
         return _this.trigger('input:change', ev);
+      };
+    })(this));
+    return this.opts.result.addEventListener('click', (function(_this) {
+      return function(ev) {
+        return _this.trigger('result:click', ev);
       };
     })(this));
   };
