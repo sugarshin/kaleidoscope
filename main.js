@@ -58,7 +58,7 @@ fileRead.on('result:click', function(ev) {
   target = ev.target;
   if (Kaleidoscope.isRun() && target.tagName.toLowerCase() === 'img') {
     img = document.createElement('img');
-    img.src = target.currentSrc;
+    img.src = target.src;
     return instance.kaleidoscope.setImage(img);
   }
 });
