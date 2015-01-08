@@ -176,22 +176,22 @@ module.exports =
           dx = Math.floor g / 10
           dy = Math.floor g / 10
 
-          hx = dx - 0.5
-          hy = dy - 0.5
+          hx = dx + 0.5
+          hy = dy + 0.5
 
-          @opts.tx = hx * @opts.radius * 2
-          @opts.ty = hy * @opts.radius * -2
+          @opts.tx = hx * @opts.radius * 1.5
+          @opts.ty = hy * @opts.radius * -1.5
           @opts.tr = Math.atan2 hy, hx
 
         else if g < -10
           dx = Math.floor g / 10
           dy = Math.floor g / 10
 
-          hx = dx - 0.5
-          hy = dy - 0.5
+          hx = dx + 0.5
+          hy = dy + 0.5
 
-          @opts.tx = hx * @opts.radius * -2
-          @opts.ty = hy * @opts.radius * 2
+          @opts.tx = hx * @opts.radius * -1.5
+          @opts.ty = hy * @opts.radius * 1.5
           @opts.tr = Math.atan2 hy, hx
 
       window.addEventListener 'mousemove', onMouseMoved
