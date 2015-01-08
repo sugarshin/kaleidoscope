@@ -7485,18 +7485,18 @@ module.exports = Kaleidoscope = (function() {
         if (g > 10) {
           dx = Math.floor(g / 10);
           dy = Math.floor(g / 10);
-          hx = dx - 0.5;
-          hy = dy - 0.5;
-          _this.opts.tx = hx * _this.opts.radius * 2;
-          _this.opts.ty = hy * _this.opts.radius * -2;
+          hx = dx + 0.5;
+          hy = dy + 0.5;
+          _this.opts.tx = hx * _this.opts.radius * 1.5;
+          _this.opts.ty = hy * _this.opts.radius * -1.5;
           return _this.opts.tr = Math.atan2(hy, hx);
         } else if (g < -10) {
           dx = Math.floor(g / 10);
           dy = Math.floor(g / 10);
-          hx = dx - 0.5;
-          hy = dy - 0.5;
-          _this.opts.tx = hx * _this.opts.radius * -2;
-          _this.opts.ty = hy * _this.opts.radius * 2;
+          hx = dx + 0.5;
+          hy = dy + 0.5;
+          _this.opts.tx = hx * _this.opts.radius * -1.5;
+          _this.opts.ty = hy * _this.opts.radius * 1.5;
           return _this.opts.tr = Math.atan2(hy, hx);
         }
       };
