@@ -7480,14 +7480,25 @@ module.exports = Kaleidoscope = (function() {
     })(this);
     onRotation = (function(_this) {
       return function(ev) {
-        var dx, hx, rR;
+        var dx, dy, g, hx, hy, rR;
         rR = ev.rotationRate;
-        rR.alpha;
-        if (rR.alpha > 1) {
-          dx = Math.floor(rR.alpha);
-          hx = dx;
-          _this.opts.tx = hx * _this.opts.radius;
-          return _this.opts.tr = Math.atan2(_this.opts.ty, hx);
+        g = rR.gamma;
+        if (g > 1) {
+          dx = Math.floor(g / 10);
+          dy = Math.floor(g / 10);
+          hx = dx - 0.5;
+          hy = dy - 0.5;
+          _this.opts.tx = hx * _this.opts.radius * 2;
+          _this.opts.ty = hy * _this.opts.radius * -2;
+          return _this.opts.tr = Math.atan2(hy, hx);
+        } else if (g < -1) {
+          dx = Math.floor(g / 10);
+          dy = Math.floor(g / 10);
+          hx = dx - 0.5;
+          hy = dy - 0.5;
+          _this.opts.tx = hx * _this.opts.radius * -2;
+          _this.opts.ty = hy * _this.opts.radius * 2;
+          return _this.opts.tr = Math.atan2(hy, hx);
         }
       };
     })(this);
