@@ -4,7 +4,7 @@
  * License: MIT
  */
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var FileRead, Kaleidoscope, Range, fileRead, inputFile, inputRange, instance, range;
+var FileRead, Kaleidoscope, Range, Shake, addImage, changeNextImage, fileRead, initKaleido, inputFile, inputRange, instance, range, shake;
 
 FileRead = require('./fileread');
 
@@ -12,11 +12,11 @@ Range = require('./range');
 
 Kaleidoscope = require('./kaleidoscope');
 
+Shake = require("./../../bower_components/shake/shake.js");
+
 inputFile = document.getElementById('file');
 
-fileRead = new FileRead(inputFile, {
-  result: document.getElementById('result-file')
-});
+fileRead = new FileRead(inputFile);
 
 inputRange = document.getElementById('range');
 
@@ -24,54 +24,214 @@ range = new Range(inputRange, {
   text: document.getElementById('result-range')
 });
 
+shake = new Shake;
+
+shake.start();
+
 instance = {};
 
-fileRead.on('input:change', function(ev) {
-  return fileRead.setImgSrc(ev).then(function(results) {
-    var h, img, srcs, w;
-    img = document.createElement('img');
-    srcs = results[0].getImgSrc();
-    img.src = srcs[srcs.length - 1];
-    fileRead.outputResult(srcs[srcs.length - 1]);
-    if (Kaleidoscope.isRun()) {
-      instance.kaleidoscope.setImage(img);
-      return;
-    }
-    if (window.ontouchstart !== void 0) {
-      w = window.screen.availWidth / 2;
-      h = window.screen.availHeight / 2;
-    } else {
-      w = window.innerWidth / 2;
-      h = window.innerHeight / 2;
-    }
-    return instance.kaleidoscope = new Kaleidoscope({
-      output: document.getElementById('output'),
-      image: img,
-      slices: range.getVal(),
-      radius: Math.min(w, h)
-    });
-  });
-});
-
-fileRead.on('result:click', function(ev) {
-  var img, target;
-  target = ev.target;
-  if (Kaleidoscope.isRun() && target.tagName.toLowerCase() === 'img') {
-    img = document.createElement('img');
-    img.src = target.src;
-    return instance.kaleidoscope.setImage(img);
+initKaleido = function(img, src) {
+  var h, w;
+  if (window.ontouchstart !== void 0) {
+    w = window.screen.availWidth / 2;
+    h = window.screen.availHeight / 2;
+  } else {
+    w = window.innerWidth / 2;
+    h = window.innerHeight / 2;
   }
+  instance.kaleidoscope = new Kaleidoscope({
+    output: document.getElementById('output'),
+    image: img,
+    slices: range.getVal(),
+    radius: Math.min(w, h),
+    archive: document.getElementById('archive-image')
+  });
+  instance.kaleidoscope.outputArchive(src, 0).setCurrentArchiveNum(0);
+  return instance.kaleidoscope.on('archive:click', function(ev) {
+    var target;
+    target = ev.target;
+    if (Kaleidoscope.isRun() && target.tagName.toLowerCase() === 'img') {
+      img = document.createElement('img');
+      img.src = target.src;
+      return instance.kaleidoscope.updateImage(img).setCurrentArchiveNum(parseInt(target.attributes[1].value, 10));
+    }
+  });
+};
+
+addImage = function(img, src, num) {
+  return instance.kaleidoscope.updateImage(img).outputArchive(src, num).setCurrentArchiveNum(num);
+};
+
+changeNextImage = function() {
+  var current, img, next, srcs;
+  img = document.createElement('img');
+  srcs = fileRead.getLoadedSrcs();
+  current = instance.kaleidoscope.getCurrentArchiveNum();
+  if (current === srcs.length - 1) {
+    next = 0;
+  } else {
+    next = current + 1;
+  }
+  img.src = srcs[next];
+  return instance.kaleidoscope.updateImage(img).setCurrentArchiveNum(next);
+};
+
+fileRead.on('input:change', function(ev) {
+  return fileRead.read(ev).then(function(evArr) {
+    var img, len, src;
+    img = document.createElement('img');
+    src = evArr[0].target.result;
+    img.src = src;
+    len = fileRead.getLoadedSrcs().length;
+    if (Kaleidoscope.isRun()) {
+      return addImage(img, src, len - 1);
+    } else {
+      return initKaleido(img, src);
+    }
+  });
 });
 
 range.on('input:change', function(ev) {
   if (Kaleidoscope.isRun()) {
-    return instance.kaleidoscope.setSlices(range.getVal());
+    return instance.kaleidoscope.updateSlices(range.getVal());
   }
 });
 
+window.addEventListener('shake', changeNextImage);
 
 
-},{"./fileread":41,"./kaleidoscope":42,"./range":43}],2:[function(require,module,exports){
+
+},{"./../../bower_components/shake/shake.js":2,"./fileread":42,"./kaleidoscope":43,"./range":44}],2:[function(require,module,exports){
+/*
+ *
+ * Find more about this plugin by visiting
+ * http://alxgbsn.co.uk/
+ *
+ * Copyright (c) 2010-2014 Alex Gibson
+ * Released under MIT license
+ *
+ */
+(function(window, factory) {
+    if (typeof define === 'function' && define.amd) {
+        define(function() {
+            return factory(window, window.document);
+        });
+    } else if (typeof module !== 'undefined' && module.exports) {
+        module.exports = factory(this, this.document);
+    } else {
+        window.Shake = factory(window, window.document);
+    }
+} (this, function (window, document) {
+    'use strict';
+    function Shake(options) {
+        //feature detect
+        this.hasDeviceMotion = 'ondevicemotion' in window;
+
+        this.options = {
+            threshold: 15 //default velocity threshold for shake to register
+        };
+
+        if (typeof options === 'object') {
+            for (var i in options) {
+                if (options.hasOwnProperty(i)) {
+                    this.options[i] = options[i];
+                }
+            }
+        }
+
+        //use date to prevent multiple shakes firing
+        this.lastTime = new Date();
+
+        //accelerometer values
+        this.lastX = null;
+        this.lastY = null;
+        this.lastZ = null;
+
+        //create custom event
+        if (typeof document.CustomEvent === 'function') {
+            this.event = new document.CustomEvent('shake', {
+                bubbles: true,
+                cancelable: true
+            });
+        } else if (typeof document.createEvent === 'function') {
+            this.event = document.createEvent('Event');
+            this.event.initEvent('shake', true, true);
+        } else { 
+          return false;
+        }
+    }
+
+    //reset timer values
+    Shake.prototype.reset = function () {
+        this.lastTime = new Date();
+        this.lastX = null;
+        this.lastY = null;
+        this.lastZ = null;
+    };
+
+    //start listening for devicemotion
+    Shake.prototype.start = function () {
+        this.reset();
+        if (this.hasDeviceMotion) { window.addEventListener('devicemotion', this, false); }
+    };
+
+    //stop listening for devicemotion
+    Shake.prototype.stop = function () {
+
+        if (this.hasDeviceMotion) { window.removeEventListener('devicemotion', this, false); }
+        this.reset();
+    };
+
+    //calculates if shake did occur
+    Shake.prototype.devicemotion = function (e) {
+
+        var current = e.accelerationIncludingGravity,
+            currentTime,
+            timeDifference,
+            deltaX = 0,
+            deltaY = 0,
+            deltaZ = 0;
+
+        if ((this.lastX === null) && (this.lastY === null) && (this.lastZ === null)) {
+            this.lastX = current.x;
+            this.lastY = current.y;
+            this.lastZ = current.z;
+            return;
+        }
+
+        deltaX = Math.abs(this.lastX - current.x);
+        deltaY = Math.abs(this.lastY - current.y);
+        deltaZ = Math.abs(this.lastZ - current.z);
+
+        if (((deltaX > this.options.threshold) && (deltaY > this.options.threshold)) || ((deltaX > this.options.threshold) && (deltaZ > this.options.threshold)) || ((deltaY > this.options.threshold) && (deltaZ > this.options.threshold))) {
+            //calculate time in milliseconds since last shake registered
+            currentTime = new Date();
+            timeDifference = currentTime.getTime() - this.lastTime.getTime();
+
+            if (timeDifference > 1000) {
+                window.dispatchEvent(this.event);
+                this.lastTime = new Date();
+            }
+        }
+
+        this.lastX = current.x;
+        this.lastY = current.y;
+        this.lastZ = current.z;
+
+    };
+
+    //event handler
+    Shake.prototype.handleEvent = function (e) {
+
+        if (typeof (this[e.type]) === 'function') {
+            return this[e.type](e);
+        }
+    };
+
+    return Shake;
+}));
+
+},{}],3:[function(require,module,exports){
 //     Underscore.js 1.7.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -1488,7 +1648,7 @@ range.on('input:change', function(ev) {
   }
 }.call(this));
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 
 /*!
  * @license coffee-mixin v2.1.0
@@ -1542,7 +1702,7 @@ module.exports = Mixin = (function() {
 
 
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /*!
  * @license eventz v1.2.1
  * (c) 2015 sugarshin https://github.com/sugarshin
@@ -1633,7 +1793,7 @@ module.exports = Mixin = (function() {
 
 }).call(this);
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -1683,7 +1843,7 @@ Promise.prototype.any = function () {
 
 };
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 (function (process){
 /* @preserve
  * The MIT License (MIT)
@@ -1807,7 +1967,7 @@ module.exports = new Async();
 module.exports.firstLineError = firstLineError;
 
 }).call(this,require('_process'))
-},{"./queue.js":29,"./schedule.js":32,"_process":40}],7:[function(require,module,exports){
+},{"./queue.js":30,"./schedule.js":33,"_process":41}],8:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -1843,7 +2003,7 @@ function noConflict(bluebird) {
 module.exports = require("./promise.js")();
 module.exports.noConflict = noConflict;
 
-},{"./promise.js":24}],8:[function(require,module,exports){
+},{"./promise.js":25}],9:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -1969,7 +2129,7 @@ Promise.prototype.get = function (propertyName) {
 };
 };
 
-},{"./util.js":39}],9:[function(require,module,exports){
+},{"./util.js":40}],10:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -2049,7 +2209,7 @@ Promise.prototype.fork = function (didFulfill, didReject, didProgress) {
 };
 };
 
-},{"./async.js":6,"./errors.js":14,"./util.js":39}],10:[function(require,module,exports){
+},{"./async.js":7,"./errors.js":15,"./util.js":40}],11:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -2389,7 +2549,7 @@ var captureStackTrace = (function stackDetection() {
 return CapturedTrace;
 };
 
-},{"./es5.js":16,"./util.js":39}],11:[function(require,module,exports){
+},{"./es5.js":17,"./util.js":40}],12:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -2485,7 +2645,7 @@ CatchFilter.prototype.doFilter = function (e) {
 return CatchFilter;
 };
 
-},{"./errors.js":14,"./es5.js":16,"./util.js":39}],12:[function(require,module,exports){
+},{"./errors.js":15,"./es5.js":17,"./util.js":40}],13:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -2565,7 +2725,7 @@ Promise.prototype.thenThrow = function (reason) {
 };
 };
 
-},{"./util.js":39}],13:[function(require,module,exports){
+},{"./util.js":40}],14:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -2603,7 +2763,7 @@ Promise.each = function (promises, fn) {
 };
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -2754,7 +2914,7 @@ module.exports = {
     canAttachTrace: canAttachTrace
 };
 
-},{"./es5.js":16,"./util.js":39}],15:[function(require,module,exports){
+},{"./es5.js":17,"./util.js":40}],16:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -2796,7 +2956,7 @@ function apiRejection(msg) {
 return apiRejection;
 };
 
-},{"./errors.js":14}],16:[function(require,module,exports){
+},{"./errors.js":15}],17:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -2894,7 +3054,7 @@ if (isES5) {
     };
 }
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -2932,7 +3092,7 @@ Promise.filter = function (promises, fn, options) {
 };
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -3057,7 +3217,7 @@ Promise.prototype.tap = function (handler) {
 };
 };
 
-},{"./util.js":39}],19:[function(require,module,exports){
+},{"./util.js":40}],20:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -3216,7 +3376,7 @@ Promise.spawn = function (generatorFunction) {
 };
 };
 
-},{"./errors.js":14,"./util.js":39}],20:[function(require,module,exports){
+},{"./errors.js":15,"./util.js":40}],21:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -3343,7 +3503,7 @@ Promise.join = function () {
 
 };
 
-},{"./util.js":39}],21:[function(require,module,exports){
+},{"./util.js":40}],22:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -3496,7 +3656,7 @@ Promise.map = function (promises, fn, options, _filter) {
 
 };
 
-},{"./util.js":39}],22:[function(require,module,exports){
+},{"./util.js":40}],23:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -3572,7 +3732,7 @@ Promise.prototype.nodeify = function (nodeback, options) {
 };
 };
 
-},{"./async.js":6,"./util.js":39}],23:[function(require,module,exports){
+},{"./async.js":7,"./util.js":40}],24:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -3675,7 +3835,7 @@ Promise.prototype._progressUnchecked = function (progressValue) {
 };
 };
 
-},{"./async.js":6,"./errors.js":14,"./util.js":39}],24:[function(require,module,exports){
+},{"./async.js":7,"./errors.js":15,"./util.js":40}],25:[function(require,module,exports){
 (function (process){
 /* @preserve
  * The MIT License (MIT)
@@ -4681,7 +4841,7 @@ return Promise;
 };
 
 }).call(this,require('_process'))
-},{"./any.js":5,"./async.js":6,"./call_get.js":8,"./cancel.js":9,"./captured_trace.js":10,"./catch_filter.js":11,"./direct_resolve.js":12,"./each.js":13,"./errors.js":14,"./errors_api_rejection":15,"./filter.js":17,"./finally.js":18,"./generators.js":19,"./join.js":20,"./map.js":21,"./nodeify.js":22,"./progress.js":23,"./promise_array.js":25,"./promise_resolver.js":26,"./promisify.js":27,"./props.js":28,"./race.js":30,"./reduce.js":31,"./settle.js":33,"./some.js":34,"./synchronous_inspection.js":35,"./thenables.js":36,"./timers.js":37,"./using.js":38,"./util.js":39,"_process":40}],25:[function(require,module,exports){
+},{"./any.js":6,"./async.js":7,"./call_get.js":9,"./cancel.js":10,"./captured_trace.js":11,"./catch_filter.js":12,"./direct_resolve.js":13,"./each.js":14,"./errors.js":15,"./errors_api_rejection":16,"./filter.js":18,"./finally.js":19,"./generators.js":20,"./join.js":21,"./map.js":22,"./nodeify.js":23,"./progress.js":24,"./promise_array.js":26,"./promise_resolver.js":27,"./promisify.js":28,"./props.js":29,"./race.js":31,"./reduce.js":32,"./settle.js":34,"./some.js":35,"./synchronous_inspection.js":36,"./thenables.js":37,"./timers.js":38,"./using.js":39,"./util.js":40,"_process":41}],26:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -4857,7 +5017,7 @@ PromiseArray.prototype.getActualLength = function (len) {
 return PromiseArray;
 };
 
-},{"./errors.js":14,"./util.js":39}],26:[function(require,module,exports){
+},{"./errors.js":15,"./util.js":40}],27:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -5017,7 +5177,7 @@ PromiseResolver.prototype._setCarriedStackTrace = function (trace) {
 
 module.exports = PromiseResolver;
 
-},{"./async.js":6,"./errors.js":14,"./es5.js":16,"./util.js":39}],27:[function(require,module,exports){
+},{"./async.js":7,"./errors.js":15,"./es5.js":17,"./util.js":40}],28:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -5347,7 +5507,7 @@ Promise.promisifyAll = function (target, options) {
 };
 
 
-},{"./errors":14,"./promise_resolver.js":26,"./util.js":39}],28:[function(require,module,exports){
+},{"./errors":15,"./promise_resolver.js":27,"./util.js":40}],29:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -5452,7 +5612,7 @@ Promise.props = function (promises) {
 };
 };
 
-},{"./errors_api_rejection":15,"./es5.js":16,"./util.js":39}],29:[function(require,module,exports){
+},{"./errors_api_rejection":16,"./es5.js":17,"./util.js":40}],30:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -5587,7 +5747,7 @@ Queue.prototype._resizeTo = function (capacity) {
 
 module.exports = Queue;
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -5662,7 +5822,7 @@ Promise.prototype.race = function () {
 
 };
 
-},{"./errors_api_rejection.js":15,"./util.js":39}],31:[function(require,module,exports){
+},{"./errors_api_rejection.js":16,"./util.js":40}],32:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -5850,7 +6010,7 @@ Promise.reduce = function (promises, fn, initialValue, _each) {
 };
 };
 
-},{"./util.js":39}],32:[function(require,module,exports){
+},{"./util.js":40}],33:[function(require,module,exports){
 (function (process){
 /* @preserve
  * The MIT License (MIT)
@@ -5909,7 +6069,7 @@ else {
 module.exports = schedule;
 
 }).call(this,require('_process'))
-},{"_process":40}],33:[function(require,module,exports){
+},{"_process":41}],34:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -5975,7 +6135,7 @@ Promise.prototype.settle = function () {
 };
 };
 
-},{"./util.js":39}],34:[function(require,module,exports){
+},{"./util.js":40}],35:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -6130,7 +6290,7 @@ Promise.prototype.some = function (howMany) {
 Promise._SomePromiseArray = SomePromiseArray;
 };
 
-},{"./errors.js":14,"./util.js":39}],35:[function(require,module,exports){
+},{"./errors.js":15,"./util.js":40}],36:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -6250,7 +6410,7 @@ Promise.prototype.reason = function() {
 Promise.PromiseInspection = PromiseInspection;
 };
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -6386,7 +6546,7 @@ function doThenable(x, then, traceParent) {
 return tryConvertToPromise;
 };
 
-},{"./errors.js":14,"./util.js":39}],37:[function(require,module,exports){
+},{"./errors.js":15,"./util.js":40}],38:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -6489,7 +6649,7 @@ Promise.prototype.timeout = function (ms, message) {
 
 };
 
-},{"./errors.js":14,"./errors_api_rejection":15,"./util.js":39}],38:[function(require,module,exports){
+},{"./errors.js":15,"./errors_api_rejection":16,"./util.js":40}],39:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -6684,7 +6844,7 @@ module.exports = function (Promise, apiRejection, tryConvertToPromise) {
 
 };
 
-},{"./errors.js":14,"./util.js":39}],39:[function(require,module,exports){
+},{"./errors.js":15,"./util.js":40}],40:[function(require,module,exports){
 /* @preserve
  * The MIT License (MIT)
  * 
@@ -6966,7 +7126,7 @@ var ret = {
 
 module.exports = ret;
 
-},{"./es5.js":16}],40:[function(require,module,exports){
+},{"./es5.js":17}],41:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -7054,7 +7214,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 var Eventz, FileRead, Mixin, Promise, _;
 
 Promise = require('bluebird');
@@ -7068,9 +7228,7 @@ Eventz = require('../../eventz/dest/eventz');
 module.exports = FileRead = (function() {
   Mixin.include(FileRead, Eventz);
 
-  FileRead.prototype.defaults = {
-    result: null
-  };
+  FileRead.prototype.defaults = {};
 
   function FileRead(input, opts) {
     this.input = input;
@@ -7078,23 +7236,14 @@ module.exports = FileRead = (function() {
     this.events();
   }
 
-  FileRead.prototype.outputResult = function(src) {
-    var div, img;
-    div = document.createElement('div');
-    div.className = 'result-file-image';
-    img = document.createElement('img');
-    img.src = src;
-    div.appendChild(img);
-    this._resultImgsEl || (this._resultImgsEl = []);
-    this._resultImgsEl.push(div);
-    this.opts.result.appendChild(div);
+  FileRead.prototype.setLoadedSrcs = function(src) {
+    this._loadedSrcs || (this._loadedSrcs = []);
+    this._loadedSrcs.push(src);
     return this;
   };
 
-  FileRead.prototype._loadedFunc = function(ev, resolve) {
-    this._imgSrcs || (this._imgSrcs = []);
-    this._imgSrcs.push(ev.target.result);
-    return resolve(this);
+  FileRead.prototype.getLoadedSrcs = function() {
+    return this._loadedSrcs;
   };
 
   FileRead.prototype._errorFunc = function(ev, reject) {
@@ -7113,7 +7262,7 @@ module.exports = FileRead = (function() {
     return reject(new Error('An error occurred reading this file.'));
   };
 
-  FileRead.prototype.setImgSrc = function(event) {
+  FileRead.prototype.read = function(event) {
     var file, i, promiseAll, promises, _fn, _i, _len, _ref;
     promises = [];
     _ref = event.target.files;
@@ -7124,7 +7273,8 @@ module.exports = FileRead = (function() {
           var reader;
           reader = new FileReader;
           reader.onload = function(ev) {
-            return _this._loadedFunc(ev, resolve);
+            _this.setLoadedSrcs(ev.target.result);
+            return resolve(ev);
           };
           reader.onerror = function(ev) {
             return _this._errorFunc(ev, reject);
@@ -7143,19 +7293,10 @@ module.exports = FileRead = (function() {
     return promiseAll = new Promise.all(promises);
   };
 
-  FileRead.prototype.getImgSrc = function() {
-    return this._imgSrcs;
-  };
-
   FileRead.prototype.events = function() {
-    this.input.addEventListener('change', (function(_this) {
+    return this.input.addEventListener('change', (function(_this) {
       return function(ev) {
         return _this.trigger('input:change', ev);
-      };
-    })(this));
-    return this.opts.result.addEventListener('click', (function(_this) {
-      return function(ev) {
-        return _this.trigger('result:click', ev);
       };
     })(this));
   };
@@ -7166,13 +7307,19 @@ module.exports = FileRead = (function() {
 
 
 
-},{"../../coffee-mixin/dest/mixin":3,"../../eventz/dest/eventz":4,"./../../bower_components/underscore/underscore.js":2,"bluebird":7}],42:[function(require,module,exports){
-var Kaleidoscope, _;
+},{"../../coffee-mixin/dest/mixin":4,"../../eventz/dest/eventz":5,"./../../bower_components/underscore/underscore.js":3,"bluebird":8}],43:[function(require,module,exports){
+var Eventz, Kaleidoscope, Mixin, _;
 
 _ = require("./../../bower_components/underscore/underscore.js");
 
+Mixin = require('../../coffee-mixin/dest/mixin');
+
+Eventz = require('../../eventz/dest/eventz');
+
 module.exports = Kaleidoscope = (function() {
   var _anyRun, _cancelAnimeFrame, _requestAnimeFrame;
+
+  Mixin.include(Kaleidoscope, Eventz);
 
   _anyRun = false;
 
@@ -7208,13 +7355,15 @@ module.exports = Kaleidoscope = (function() {
     zoom: 1.0,
     interactive: true,
     ease: 0.1,
-    fps: 60
+    fps: 60,
+    archive: null
   };
 
   function Kaleidoscope(opts) {
     this.opts = _.extend({}, this.defaults, opts);
     this.canvas = document.createElement('canvas');
     this.context = this.canvas.getContext('2d');
+    this._currentArchiveNum = 0;
     this.initStyle();
     this.render();
     this.events();
@@ -7235,13 +7384,34 @@ module.exports = Kaleidoscope = (function() {
     return this;
   };
 
-  Kaleidoscope.prototype.setImage = function(el) {
+  Kaleidoscope.prototype.updateImage = function(el) {
     this.opts.image = el;
     return this;
   };
 
-  Kaleidoscope.prototype.setSlices = function(num) {
+  Kaleidoscope.prototype.updateSlices = function(num) {
     this.opts.slices = num;
+    return this;
+  };
+
+  Kaleidoscope.prototype.setCurrentArchiveNum = function(num) {
+    this._currentArchiveNum = num;
+    return this;
+  };
+
+  Kaleidoscope.prototype.getCurrentArchiveNum = function() {
+    return this._currentArchiveNum;
+  };
+
+  Kaleidoscope.prototype.outputArchive = function(src, num) {
+    var div, img;
+    div = document.createElement('div');
+    div.className = 'result-file-image';
+    img = document.createElement('img');
+    img.src = src;
+    img.setAttribute('data-num', num);
+    div.appendChild(img);
+    this.opts.archive.appendChild(div);
     return this;
   };
 
@@ -7330,6 +7500,11 @@ module.exports = Kaleidoscope = (function() {
     if (this.opts.interactive) {
       this.update();
     }
+    this.opts.archive.addEventListener('click', (function(_this) {
+      return function(ev) {
+        return _this.trigger('archive:click', ev);
+      };
+    })(this));
     return this;
   };
 
@@ -7339,7 +7514,7 @@ module.exports = Kaleidoscope = (function() {
 
 
 
-},{"./../../bower_components/underscore/underscore.js":2}],43:[function(require,module,exports){
+},{"../../coffee-mixin/dest/mixin":4,"../../eventz/dest/eventz":5,"./../../bower_components/underscore/underscore.js":3}],44:[function(require,module,exports){
 var Eventz, Mixin, Range, _;
 
 _ = require("./../../bower_components/underscore/underscore.js");
@@ -7397,4 +7572,4 @@ module.exports = Range = (function() {
 
 
 
-},{"../../coffee-mixin/dest/mixin":3,"../../eventz/dest/eventz":4,"./../../bower_components/underscore/underscore.js":2}]},{},[1]);
+},{"../../coffee-mixin/dest/mixin":4,"../../eventz/dest/eventz":5,"./../../bower_components/underscore/underscore.js":3}]},{},[1]);
