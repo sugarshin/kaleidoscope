@@ -11,6 +11,7 @@
     "tests"
   ],
   "dependencies": {
-    "underscore": "~1.7.0"
+    "underscore": "~1.7.0",
+    "shake": "git@github.com:sugarshin/shake.js.git#1.1.1"
   }
 }

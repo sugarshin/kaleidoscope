@@ -1,7 +1,12 @@
 _ = require 'underscore'
 
+Mixin = require '../../coffee-mixin/dest/mixin'
+Eventz = require '../../eventz/dest/eventz'
+
 module.exports =
   class Kaleidoscope
+    Mixin.include @, Eventz
+
     _anyRun = false
     @isRun: -> _anyRun
 
@@ -43,12 +48,15 @@ module.exports =
       interactive: true
       ease: 0.1
       fps: 60
+      archive: null
 
     constructor: (opts) ->
       @opts = _.extend {}, @defaults, opts
 
       @canvas = document.createElement 'canvas'
       @context = @canvas.getContext '2d'
+
+      @_currentArchiveNum = 0
 
       @initStyle()
       @render()
@@ -68,12 +76,31 @@ module.exports =
       @opts.output.appendChild @canvas
       return this
 
-    setImage: (el) ->
+    updateImage: (el) ->
       @opts.image = el
       return this
 
-    setSlices: (num) ->
+    updateSlices: (num) ->
       @opts.slices = num
+      return this
+
+    setCurrentArchiveNum: (num) ->
+      @_currentArchiveNum = num
+      return this
+
+    getCurrentArchiveNum: -> @_currentArchiveNum
+
+    outputArchive: (src, num) ->
+      div = document.createElement 'div'
+      div.className = 'result-file-image'
+
+      img = document.createElement 'img'
+      img.src = src
+      img.setAttribute 'data-num', num
+
+      div.appendChild img
+
+      @opts.archive.appendChild div
       return this
 
     draw: ->
@@ -159,5 +186,8 @@ module.exports =
       window.addEventListener 'devicemotion', onRotation
 
       @update() if @opts.interactive
+
+      @opts.archive.addEventListener 'click', (ev) =>
+        @trigger 'archive:click', ev
 
       return this

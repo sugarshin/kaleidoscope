@@ -8,32 +8,18 @@ module.exports =
   class FileRead
     Mixin.include @, Eventz
 
-    defaults:
-      result: null
+    defaults: {}
 
     constructor: (@input, opts) ->
       @opts = _.extend {}, @defaults, opts
       @events()
 
-    outputResult: (src) ->
-      div = document.createElement 'div'
-      div.className = 'result-file-image'
-
-      img = document.createElement 'img'
-      img.src = src
-
-      div.appendChild img
-
-      @_resultImgsEl or= []
-      @_resultImgsEl.push div
-      @opts.result.appendChild div
+    setLoadedSrcs: (src) ->
+      @_loadedSrcs or= []
+      @_loadedSrcs.push src
       return this
 
-    _loadedFunc: (ev, resolve) ->
-      @_imgSrcs or= []
-      @_imgSrcs.push ev.target.result
-      # @outputResult ev.target.result
-      resolve @
+    getLoadedSrcs: -> @_loadedSrcs
 
     _errorFunc: (ev, reject) ->
       switch ev.target.error.code
@@ -47,7 +33,7 @@ module.exports =
           alert 'An error occurred reading this file.'
       reject new Error('An error occurred reading this file.')# ev.
 
-    setImgSrc: (event) ->
+    read: (event) ->
       promises = []
       for file, i in event.target.files
         unless file.type.match 'image.*' then continue
@@ -56,7 +42,8 @@ module.exports =
             reader = new FileReader
 
             reader.onload = (ev) =>
-              @_loadedFunc ev, resolve
+              @setLoadedSrcs ev.target.result
+              resolve ev
 
             reader.onerror = (ev) =>
               @_errorFunc ev, reject
@@ -65,11 +52,6 @@ module.exports =
 
       return promiseAll = new Promise.all promises
 
-    getImgSrc: -> @_imgSrcs
-
     events: ->
       @input.addEventListener 'change', (ev) =>
         @trigger 'input:change', ev
-
-      @opts.result.addEventListener 'click', (ev) =>
-        @trigger 'result:click', ev
