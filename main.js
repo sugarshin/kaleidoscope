@@ -7371,11 +7371,7 @@ module.exports = Kaleidoscope = (function() {
   }
 
   Kaleidoscope.prototype.initStyle = function() {
-    this.canvas.style.position = 'absolute';
-    this.canvas.style.marginTop = "" + (-this.opts.radius) + "px";
-    this.canvas.style.marginLeft = "" + (-this.opts.radius) + "px";
-    this.canvas.style.top = '50%';
-    this.canvas.style.left = '50%';
+    this.canvas.style.cssText = "position: absolute; margin-top: " + (-this.opts.radius) + "px; margin-left: " + (-this.opts.radius) + "px; top: 50%; left: 50%;";
     return this;
   };
 
