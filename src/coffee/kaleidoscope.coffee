@@ -65,11 +65,13 @@ module.exports =
       _anyRun = true
 
     initStyle: ->
-      @canvas.style.position = 'absolute'
-      @canvas.style.marginTop = "#{-@opts.radius}px"
-      @canvas.style.marginLeft = "#{-@opts.radius}px"
-      @canvas.style.top = '50%'
-      @canvas.style.left = '50%'
+      @canvas.style.cssText = "
+        position: absolute;
+        margin-top: #{-@opts.radius}px;
+        margin-left: #{-@opts.radius}px;
+        top: 50%;
+        left: 50%;
+      "
       return this
 
     render: ->
