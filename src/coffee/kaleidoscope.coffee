@@ -170,10 +170,9 @@ module.exports =
 
       # todo ---------------------------
       onRotation = (ev) =>
-        rR = ev.rotationRate
-        g = rR.gamma
+        g = ev.rotationRate.gamma
 
-        if g > 1
+        if g > 10
           dx = Math.floor g / 10
           dy = Math.floor g / 10
 
@@ -184,7 +183,7 @@ module.exports =
           @opts.ty = hy * @opts.radius * -2
           @opts.tr = Math.atan2 hy, hx
 
-        else if g < -1
+        else if g < -10
           dx = Math.floor g / 10
           dy = Math.floor g / 10
 
