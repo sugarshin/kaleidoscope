@@ -1,7 +1,7 @@
 FileRead = require './fileread'
 Range = require './range'
 Kaleidoscope = require './kaleidoscope'
-Shake = require 'shake'
+Shake = require 'shakejs'
 
 inputFile = document.getElementById 'file'
 fileRead = new FileRead inputFile

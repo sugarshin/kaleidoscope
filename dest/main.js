@@ -12,7 +12,7 @@ Range = require('./range');
 
 Kaleidoscope = require('./kaleidoscope');
 
-Shake = require("./../../bower_components/shake/shake.js");
+Shake = require("./../../bower_components/shakejs/shake.js");
 
 inputFile = document.getElementById('file');
 
@@ -101,7 +101,7 @@ window.addEventListener('shake', changeNextImage);
 
 
 
-},{"./../../bower_components/shake/shake.js":2,"./fileread":42,"./kaleidoscope":43,"./range":44}],2:[function(require,module,exports){
+},{"./../../bower_components/shakejs/shake.js":2,"./fileread":42,"./kaleidoscope":43,"./range":44}],2:[function(require,module,exports){
 /*
  *
  * Find more about this plugin by visiting
@@ -111,17 +111,17 @@ window.addEventListener('shake', changeNextImage);
  * Released under MIT license
  *
  */
-(function(window, factory) {
+(function(root, factory) {
     if (typeof define === 'function' && define.amd) {
         define(function() {
-            return factory(window, window.document);
+            return factory(root, root.document);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
-        module.exports = factory(this, this.document);
+        module.exports = factory(root, root.document);
     } else {
-        window.Shake = factory(window, window.document);
+        root.Shake = factory(root, root.document);
     }
-} (this, function (window, document) {
+} (typeof window !== 'undefined' ? window : this, function (window, document) {
     'use strict';
     function Shake(options) {
         //feature detect
