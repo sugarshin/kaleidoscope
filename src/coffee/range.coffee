@@ -1,17 +1,20 @@
-_ = require 'underscore'
+extend = require 'node.extend'
 
-Mixin = require '../../coffee-mixin/dest/mixin'
-Eventz = require '../../eventz/dest/eventz'
+inherits = require 'inherits'
+EventEmitter = require('events').EventEmitter
+
+
 
 module.exports =
   class Range
-    Mixin.include @, Eventz
+    inherits @, EventEmitter
+    # Mixin.include @, Eventz
 
     defaults:
       text: null
 
     constructor: (@input, opts) ->
-      @opts = _.extend {}, @defaults, opts
+      @opts = extend {}, @defaults, opts
       @setVal @input.value
       @changeText @getVal()
       @events()
@@ -32,4 +35,5 @@ module.exports =
 
       @input.addEventListener 'change', (ev) =>
         @setVal parseInt(ev.target.value, 10)
-        @trigger 'input:change', ev
+        @emit 'input:change', ev
+        # @trigger 'input:change', ev

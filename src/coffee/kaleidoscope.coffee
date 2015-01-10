@@ -1,11 +1,14 @@
-_ = require 'underscore'
+extend = require 'node.extend'
 
-Mixin = require '../../coffee-mixin/dest/mixin'
-Eventz = require '../../eventz/dest/eventz'
+inherits = require 'inherits'
+EventEmitter = require('events').EventEmitter
+
+
 
 module.exports =
   class Kaleidoscope
-    Mixin.include @, Eventz
+    inherits @, EventEmitter
+    # Mixin.include @, Eventz
 
     _anyRun = false
     @isRun: -> _anyRun
@@ -51,7 +54,7 @@ module.exports =
       archive: null
 
     constructor: (opts) ->
-      @opts = _.extend {}, @defaults, opts
+      @opts = extend {}, @defaults, opts
 
       @canvas = document.createElement 'canvas'
       @context = @canvas.getContext '2d'
@@ -108,7 +111,7 @@ module.exports =
     draw: ->
       @canvas.width = @canvas.height = @opts.radius * 2
       @context.fillStyle = @context.createPattern @opts.image, 'repeat'
-      
+
       scale = @opts.zoom * (@opts.radius / Math.min(@opts.image.width, @opts.image.height))
       step = @TWO_PI / @opts.slices
       cx = @opts.image.width / 2
@@ -201,6 +204,7 @@ module.exports =
       @update() if @opts.interactive
 
       @opts.archive.addEventListener 'click', (ev) =>
-        @trigger 'archive:click', ev
+        @emit 'archive:click', ev
+        # @trigger 'archive:click', ev
 
       return this

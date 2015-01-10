@@ -1,17 +1,21 @@
-Promise = require 'bluebird'
-_ = require 'underscore'
+extend = require 'node.extend'
 
-Mixin = require '../../coffee-mixin/dest/mixin'
-Eventz = require '../../eventz/dest/eventz'
+Promise = require 'bluebird'
+
+inherits = require 'inherits'
+EventEmitter = require('events').EventEmitter
+
+
 
 module.exports =
   class FileRead
-    Mixin.include @, Eventz
+    inherits @, EventEmitter
+    # Mixin.include @, Eventz
 
     defaults: {}
 
     constructor: (@input, opts) ->
-      @opts = _.extend {}, @defaults, opts
+      @opts = extend {}, @defaults, opts
       @events()
 
     setLoadedSrcs: (src) ->
@@ -54,4 +58,5 @@ module.exports =
 
     events: ->
       @input.addEventListener 'change', (ev) =>
-        @trigger 'input:change', ev
+        @emit 'input:change', ev
+        # @trigger 'input:change', ev

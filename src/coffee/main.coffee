@@ -21,7 +21,7 @@ initKaleido = (img, src) ->
   if window.ontouchstart isnt undefined
     w = window.screen.availWidth / 2
     h = window.screen.availHeight / 2
-  else 
+  else
     w = window.innerWidth / 2
     h = window.innerHeight / 2
 

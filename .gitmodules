@@ -1,6 +1,0 @@
-[submodule "eventz"]
-	path = eventz
-	url = git@github.com:sugarshin/eventz.git
-[submodule "coffee-mixin"]
-	path = coffee-mixin
-	url = git@github.com:sugarshin/coffee-mixin.git
