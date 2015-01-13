@@ -1,6 +1,7 @@
 FileRead = require './fileread'
 Range = require './range'
 Kaleidoscope = require './kaleidoscope'
+Instagram = require './instagram'
 Shake = require 'shakejs'
 
 inputFile = document.getElementById 'file'
@@ -8,6 +9,11 @@ fileRead = new FileRead inputFile
 
 inputRange = document.getElementById 'range'
 range = new Range inputRange, text: document.getElementById 'result-range'
+
+inputSearch = document.getElementById 'search'
+button = document.getElementById 'search-instagram'
+
+instagram = new Instagram inputSearch, button
 
 shake = new Shake# threshold: 15
 shake.start()
@@ -33,8 +39,8 @@ initKaleido = (img, src) ->
     archive: document.getElementById 'archive-image'
 
   instance.kaleidoscope
-  .outputArchive src, 0
-  .setCurrentArchiveNum 0
+    .outputArchive src, 0
+    .setCurrentArchiveNum 0
 
   instance.kaleidoscope.on 'archive:click', (ev) ->
     target = ev.target
@@ -44,14 +50,14 @@ initKaleido = (img, src) ->
       img.src = target.src
 
       instance.kaleidoscope
-      .updateImage img
-      .setCurrentArchiveNum parseInt target.attributes[1].value, 10
+        .updateImage img
+        .setCurrentArchiveNum parseInt target.attributes[1].value, 10
 
 addImage = (img, src, num) ->
   instance.kaleidoscope
-  .updateImage img
-  .outputArchive src, num
-  .setCurrentArchiveNum num
+    .updateImage img
+    .outputArchive src, num
+    .setCurrentArchiveNum num
 
 changeNextImage = ->
   img = document.createElement 'img'
@@ -66,30 +72,52 @@ changeNextImage = ->
   img.src = srcs[next]
 
   instance.kaleidoscope
-  .updateImage img
-  .setCurrentArchiveNum next
+    .updateImage img
+    .setCurrentArchiveNum next
 
 
 
 fileRead.on 'input:change', (ev) ->
   fileRead
-  .read ev
-  .then (evArr) ->
-    img = document.createElement 'img'
-    src = evArr[0].target.result
-    img.src = src
+    .read ev
+    .then (evArr) ->
+      img = document.createElement 'img'
+      src = evArr[0].target.result
+      img.src = src
 
-    len = fileRead.getLoadedSrcs().length
+      len = fileRead.getLoadedSrcs().length
 
-    # todo -----------------------------
-    if Kaleidoscope.isRun()
-      addImage img, src, len - 1
-    else
-      initKaleido img, src
+      # todo -----------------------------
+      if Kaleidoscope.isRun()
+        addImage img, src, len - 1
+      else
+        initKaleido img, src
 
 range.on 'input:change', (ev) ->
   # todo -----------------------------
   if Kaleidoscope.isRun()
     instance.kaleidoscope.updateSlices range.getVal()
+
+instagram.on 'search:submit', (ev, url) ->
+  instagram
+    .get url
+    .then (data) ->
+      # todo -----------------------------
+      if data.data.length is 0
+        alert 'そんな画像はありあませんでした'
+        return
+      else
+        img = document.createElement 'img'
+        src = instagram.getRandomImage(data).url
+        img.src = src
+
+        fileRead.setLoadedSrcs src
+        len = fileRead.getLoadedSrcs().length
+
+        # todo -----------------------------
+        if Kaleidoscope.isRun()
+          addImage img, src, len - 1
+        else
+          initKaleido img, src
 
 window.addEventListener 'shake', changeNextImage

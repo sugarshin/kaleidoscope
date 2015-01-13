@@ -10,11 +10,16 @@ html(lang="ja")
   body
     #output
     .control
-      input(type="file" accept="image/*" id="file")
+      p Instagramの写真をタグ検索して万華鏡できるよ
+      p 入力したワードのタグがついた写真からランダムで選ばれます
+      input(type="search" id="search" placeholder="例： apple")
+      button#search-instagram さがす
+      br
       p 画像を選択してね
+      input(type="file" accept="image/*" id="file")
+      p 分割数を指定してね
       input(type="range" value="18" min="3" step="1" max="32" id="range")
       span#result-range
-      p 分割数を指定してね
     #archive-image.archive-image
 
     script(src="main.js")
