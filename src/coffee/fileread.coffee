@@ -3,13 +3,13 @@ extend = require 'node.extend'
 Promise = require 'bluebird'
 
 inherits = require 'inherits'
-EventEmitter = require('events').EventEmitter
+EventEmitter2 = require('eventemitter2').EventEmitter2
 
 
 
 module.exports =
   class FileRead
-    inherits @, EventEmitter
+    inherits @, EventEmitter2
     # Mixin.include @, Eventz
 
     defaults: {}

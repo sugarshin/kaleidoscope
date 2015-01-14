@@ -3,13 +3,13 @@ jsonp = require 'jsonp-client'
 
 Promise = require 'bluebird'
 inherits = require 'inherits'
-EventEmitter = require('events').EventEmitter
+EventEmitter2 = require('eventemitter2').EventEmitter2
 
 
 
 module.exports =
   class Instagram
-    inherits @, EventEmitter
+    inherits @, EventEmitter2
 
     _ACCESS_TOKEN = '3060080.899ffd6.6bb01cbe1a284a8097983a1a443a3ec1'
  

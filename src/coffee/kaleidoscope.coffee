@@ -1,13 +1,13 @@
 extend = require 'node.extend'
 
 inherits = require 'inherits'
-EventEmitter = require('events').EventEmitter
+EventEmitter2 = require('eventemitter2').EventEmitter2
 
 
 
 module.exports =
   class Kaleidoscope
-    inherits @, EventEmitter
+    inherits @, EventEmitter2
     # Mixin.include @, Eventz
 
     _anyRun = false
