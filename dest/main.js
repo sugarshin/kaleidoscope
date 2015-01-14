@@ -4,7 +4,9 @@
  * License: MIT
  */
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var FileRead, Instagram, Kaleidoscope, Range, Shake, addImage, button, changeNextImage, fileRead, initKaleido, inputFile, inputRange, inputSearch, instagram, instance, range, shake;
+var FileRead, Instagram, Kaleidoscope, Promise, Range, Shake, addImage, button, changeNextImage, download, fileRead, initKaleido, inputFile, inputRange, inputSearch, instagram, instance, range, remove, setDownloadHref, shake, wait;
+
+Promise = require('bluebird');
 
 FileRead = require('./fileread');
 
@@ -32,11 +34,27 @@ button = document.getElementById('search-instagram');
 
 instagram = new Instagram(inputSearch, button);
 
+download = document.getElementById('download');
+
 shake = new Shake;
 
 shake.start();
 
 instance = {};
+
+wait = function(time) {
+  return new Promise((function(_this) {
+    return function(resolve, reject) {
+      return setTimeout(function() {
+        return resolve();
+      }, time);
+    };
+  })(this));
+};
+
+remove = function(el) {
+  return el.parentNode.removeChild(el);
+};
 
 initKaleido = function(img, src) {
   var h, w;
@@ -55,7 +73,7 @@ initKaleido = function(img, src) {
     archive: document.getElementById('archive-image')
   });
   instance.kaleidoscope.outputArchive(src, 0).setCurrentArchiveNum(0);
-  return instance.kaleidoscope.on('archive:click', function(ev) {
+  instance.kaleidoscope.on('archive:click', function(ev) {
     var target;
     target = ev.target;
     if (Kaleidoscope.isRun() && target.tagName.toLowerCase() === 'img') {
@@ -63,6 +81,14 @@ initKaleido = function(img, src) {
       img.src = target.src;
       return instance.kaleidoscope.updateImage(img).setCurrentArchiveNum(parseInt(target.attributes[1].value, 10));
     }
+  });
+  instance.kaleidoscope.on('updateimage', function() {
+    return wait(1000).then(function(_self) {
+      return setDownloadHref(instance.kaleidoscope.getDataURL());
+    });
+  });
+  return wait(1000).then(function(_self) {
+    return setDownloadHref(instance.kaleidoscope.getDataURL());
   });
 };
 
@@ -82,6 +108,10 @@ changeNextImage = function() {
   }
   img.src = srcs[next];
   return instance.kaleidoscope.updateImage(img).setCurrentArchiveNum(next);
+};
+
+setDownloadHref = function(url) {
+  return download.setAttribute('href', url);
 };
 
 fileRead.on('input:change', function(ev) {
@@ -117,9 +147,12 @@ instagram.on('search:submit', function(ev, url) {
       fileRead.setLoadedSrcs(src);
       len = fileRead.getLoadedSrcs().length;
       if (Kaleidoscope.isRun()) {
-        return addImage(img, src, len - 1);
+        addImage(img, src, len - 1);
       } else {
-        return initKaleido(img, src);
+        initKaleido(img, src);
+      }
+      if (download != null) {
+        return remove(download);
       }
     }
   });
@@ -129,7 +162,7 @@ window.addEventListener('shake', changeNextImage);
 
 
 
-},{"./../../bower_components/shakejs/shake.js":2,"./fileread":46,"./instagram":47,"./kaleidoscope":48,"./range":49}],2:[function(require,module,exports){
+},{"./../../bower_components/shakejs/shake.js":2,"./fileread":46,"./instagram":47,"./kaleidoscope":48,"./range":49,"bluebird":5}],2:[function(require,module,exports){
 /*
  *
  * Find more about this plugin by visiting
@@ -6423,6 +6456,10 @@ module.exports = Kaleidoscope = (function() {
     return this;
   };
 
+  Kaleidoscope.prototype.getDataURL = function() {
+    return this.canvas.toDataURL();
+  };
+
   Kaleidoscope.prototype.render = function() {
     this.opts.output.appendChild(this.canvas);
     return this;
@@ -6430,6 +6467,7 @@ module.exports = Kaleidoscope = (function() {
 
   Kaleidoscope.prototype.updateImage = function(el) {
     this.opts.image = el;
+    this.emit('updateimage');
     return this;
   };
 

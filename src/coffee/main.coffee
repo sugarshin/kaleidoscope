@@ -1,3 +1,5 @@
+Promise = require 'bluebird'
+
 FileRead = require './fileread'
 Range = require './range'
 Kaleidoscope = require './kaleidoscope'
@@ -15,6 +17,8 @@ button = document.getElementById 'search-instagram'
 
 instagram = new Instagram inputSearch, button
 
+download = document.getElementById 'download'
+
 shake = new Shake# threshold: 15
 shake.start()
 
@@ -22,6 +26,15 @@ shake.start()
 
 # todo ---------------------------------
 instance = {}
+
+wait = (time) ->
+  new Promise (resolve, reject) =>
+    setTimeout =>
+      resolve()
+    , time
+
+remove = (el) ->
+  el.parentNode.removeChild el
 
 initKaleido = (img, src) ->
   if window.ontouchstart isnt undefined
@@ -53,6 +66,13 @@ initKaleido = (img, src) ->
         .updateImage img
         .setCurrentArchiveNum parseInt target.attributes[1].value, 10
 
+  instance.kaleidoscope.on 'updateimage', ->
+    wait(1000).then (_self) ->
+      setDownloadHref instance.kaleidoscope.getDataURL()
+
+  wait(1000).then (_self) ->
+    setDownloadHref instance.kaleidoscope.getDataURL()
+
 addImage = (img, src, num) ->
   instance.kaleidoscope
     .updateImage img
@@ -74,6 +94,9 @@ changeNextImage = ->
   instance.kaleidoscope
     .updateImage img
     .setCurrentArchiveNum next
+
+setDownloadHref = (url) ->
+  download.setAttribute 'href', url
 
 
 
@@ -119,5 +142,8 @@ instagram.on 'search:submit', (ev, url) ->
           addImage img, src, len - 1
         else
           initKaleido img, src
+
+        if download?
+          remove download
 
 window.addEventListener 'shake', changeNextImage

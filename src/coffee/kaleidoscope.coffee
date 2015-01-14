@@ -77,12 +77,15 @@ module.exports =
       "
       return this
 
+    getDataURL: -> @canvas.toDataURL()
+
     render: ->
       @opts.output.appendChild @canvas
       return this
 
     updateImage: (el) ->
       @opts.image = el
+      @emit 'updateimage'
       return this
 
     updateSlices: (num) ->
