@@ -28,13 +28,12 @@ shake.start()
 instance = {}
 
 wait = (time) ->
-  new Promise (resolve, reject) =>
-    setTimeout =>
+  new Promise (resolve, reject) ->
+    setTimeout ->
       resolve()
     , time
 
-remove = (el) ->
-  el.parentNode.removeChild el
+remove = (el) -> el.parentNode.removeChild el
 
 initKaleido = (img, src) ->
   if window.ontouchstart isnt undefined
@@ -127,7 +126,7 @@ instagram.on 'search:submit', (ev, url) ->
     .then (data) ->
       # todo -----------------------------
       if data.data.length is 0
-        alert 'そんな画像はありあませんでした'
+        alert 'そんな画像はありませんでした'
         return
       else
         img = document.createElement 'img'
