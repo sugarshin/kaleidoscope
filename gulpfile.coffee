@@ -30,7 +30,8 @@ gulp.task 'replace-normal', ->
     .pipe replace("#{$.MAIN}.min.js", "#{$.MAIN}.js")
     .pipe gulp.dest $.DEST
 
-gulp.task 'default', ['serve'], ->
+# todo
+gulp.task 'default', ['browserify', 'serve'], ->
   gulp.watch ["./#{$.SRC}/coffee/*.coffee"], ['browserify', reload]
   gulp.watch ["./#{$.SRC}/**/*.jade"], ['jade', reload]
   gulp.watch ["./#{$.SRC}/**/*.styl"], ['stylus', reload]
