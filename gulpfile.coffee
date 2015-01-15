@@ -20,22 +20,12 @@ gulp.task 'serve', ->
       routes:
         '/': "#{$.DEST}/"
 
-gulp.task 'replace-min', ->
-  gulp.src "./#{$.DEST}/index.html"
-    .pipe replace("#{$.MAIN}.js", "#{$.MAIN}.min.js")
-    .pipe gulp.dest $.DEST
+gulp.task 'start', sequence ['jade', 'stylus'], ['replace-normal', 'browserify'], 'serve'
 
-gulp.task 'replace-normal', ->
-  gulp.src "./#{$.DEST}/index.html"
-    .pipe replace("#{$.MAIN}.min.js", "#{$.MAIN}.js")
-    .pipe gulp.dest $.DEST
-
-# todo
-gulp.task 'default', ['browserify', 'serve'], ->
+gulp.task 'default', ['start'], ->
   gulp.watch ["./#{$.SRC}/coffee/*.coffee"], ['browserify', reload]
   gulp.watch ["./#{$.SRC}/**/*.jade"], ['jade', reload]
   gulp.watch ["./#{$.SRC}/**/*.styl"], ['stylus', reload]
-
 
 # After -> git ps -> 'gh-pages' -> 'replace-normal'
 gulp.task 'build', sequence ['jade', 'stylus'], 'browserify', 'header', 'uglify', 'replace-min'
