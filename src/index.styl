@@ -1,11 +1,30 @@
 @charset "utf-8"
-@import "nib"
+@import "kouto-swiss"
 
-global-reset()
+normalize()
+
+// colors
+_primaryClr = #168eea
+_headingClr = #323b43
+_bodyClr = #59626a
+_borderClr = #ced7df
+_lightBorderClr = #eff3f6
+_fillClr = #f4f7f9
+_errorClr = #ee4f4f
+_warningClr = #fff9ea
+_successClr = #76b852
+_facebook = #3b5998
+_twitter = #55acee
+_googleplus = #dd4b39
 
 body
-  background #000
-  color #ddd
+  background _headingClr
+  color _borderClr
+  font-size modular-scale(8px, 1, ks-golden)
+
+input[type=search],
+button
+  color _headingClr
 
 .control
   position relative
@@ -34,5 +53,10 @@ body
     cursor pointer
 
 .download
+  display inline-block
+  background _primaryClr
   cursor pointer
-  border 1px solid 
+  padding 4px 8px 
+  vertical-align middlem
+  color _borderClr
+  text-decoration none 
