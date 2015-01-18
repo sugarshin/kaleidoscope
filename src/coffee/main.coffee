@@ -1,10 +1,12 @@
 Promise = require 'bluebird'
+Shake = require 'shakejs'
 
 FileRead = require './fileread'
 Range = require './range'
 Kaleidoscope = require './kaleidoscope'
 Instagram = require './instagram'
-Shake = require 'shakejs'
+
+
 
 inputFile = document.getElementById 'file'
 fileRead = new FileRead inputFile
@@ -44,7 +46,7 @@ initKaleido = (img, src) ->
     h = window.innerHeight / 2
 
   instance.kaleidoscope = new Kaleidoscope
-    output: document.getElementById 'output'
+    output: document.getElementById 'kaleidoscope'
     image: img
     slices: range.getVal()
     radius: Math.min w, h

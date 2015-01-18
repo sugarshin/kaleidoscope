@@ -8,13 +8,13 @@ html(lang="ja")
 
     link(rel="stylesheet" href="index.css")
   body
-    #output
+    #kaleidoscope
     .control
-      input(type="search" id="search" placeholder="例： apple")
+      input#search(type="search" placeholder="例： apple")
       button#search-instagram Instagramでさがす
       br
-      input(type="file" accept="image/*" id="file")
-      input(type="range" value="18" min="3" step="1" max="32" id="range")
+      input#file(type="file" accept="image/*")
+      input#range(type="range" value="18" min="3" step="1" max="32")
       span#result-range
       br
       a.download#download(download="kaleidoscope.png" target="_blank") 画像をダウンロード
