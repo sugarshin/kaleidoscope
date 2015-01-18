@@ -9,8 +9,6 @@ requireDir './tasks'
 
 reload = browserSync.reload
 
-
-
 gulp.task 'serve', ->
   browserSync
     startPath: '/'
@@ -20,12 +18,12 @@ gulp.task 'serve', ->
       routes:
         '/': "#{$.DEST}/"
 
-gulp.task 'start', sequence ['jade', 'stylus'], ['replace-normal', 'browserify'], 'serve'
+gulp.task 'start', sequence ['jade', 'stylus', 'browserify'], 'replace-normal', 'serve'
 
 gulp.task 'default', ['start'], ->
   gulp.watch ["./#{$.SRC}/coffee/*.coffee"], ['browserify', reload]
   gulp.watch ["./#{$.SRC}/**/*.jade"], ['jade', reload]
   gulp.watch ["./#{$.SRC}/**/*.styl"], ['stylus', reload]
 
-# After -> git ps -> 'gh-pages' -> 'replace-normal'
-gulp.task 'build', sequence ['jade', 'stylus'], 'browserify', 'header', ['uglify', 'replace-min']
+# After: git ps -> 'gulp gh-pages'
+gulp.task 'build', sequence ['jade', 'stylus', 'browserify'], ['header', 'replace-min'], 'uglify'

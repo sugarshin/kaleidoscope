@@ -9,19 +9,17 @@ $ =
 
 gulp.task 'bump-major', ->
   gulp.src $.json
-    .pipe bump(
+    .pipe bump
       type: 'major'
-    )
-    .pipe gulp.dest('./')
+    .pipe gulp.dest './'
 
 gulp.task 'bump-minor', ->
   gulp.src $.json
-    .pipe bump(
+    .pipe bump
       type: 'minor'
-    )
-    .pipe gulp.dest('./')
+    .pipe gulp.dest './'
 
 gulp.task 'bump-patch', ->
   gulp.src $.json
     .pipe bump()
-    .pipe gulp.dest('./')
+    .pipe gulp.dest './'
