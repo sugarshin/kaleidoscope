@@ -9,15 +9,23 @@ html(lang="ja")
     link(rel="stylesheet" href="index.css")
   body
     #kaleidoscope
-    .control
-      input#search(type="search" placeholder="例： apple")
-      button#search-instagram Instagramでさがす
-      br
-      input#file(type="file" accept="image/*")
-      input#range(type="range" value="18" min="3" step="1" max="32")
-      span#result-range
-      br
-      a.download#download(download="kaleidoscope.png" target="_blank") 画像をダウンロード
+    .control.opened
+      .file-wrapper.controller
+        input#file(type="file" accept="image/*")
+      .search-wrapper.controller
+        input#search(type="search" placeholder="例： apple")
+        br
+        button#search-instagram Instagramでさがす
+      .range-wrapper.controller
+        input#range(type="range" value="18" min="3" step="1" max="32")
+        span#result-range
+      .download-wrapper.controller
+        a.download#download(download="kaleidoscope.png" target="_blank") 画像をダウンロード
+      .open-menu-button#open-menu-button
+        a(href="#")
+          div
+          div
+          div
     #archive-image.archive-image
 
     script(src="main.js")

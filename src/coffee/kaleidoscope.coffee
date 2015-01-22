@@ -176,11 +176,11 @@ module.exports =
 
       # todo ---------------------------
       onRotation = (ev) =>
-        g = ev.rotationRate.gamma
+        a = ev.alpha
 
-        if g > 10
-          dx = Math.floor g / 10
-          dy = Math.floor g / 10
+        if a > 10
+          dx = Math.floor a / 10
+          dy = Math.floor a / 10
 
           hx = dx + 0.5
           hy = dy + 0.5
@@ -189,9 +189,9 @@ module.exports =
           @opts.ty = hy * @opts.radius * -1.5
           @opts.tr = Math.atan2 hy, hx
 
-        else if g < -10
-          dx = Math.floor g / 10
-          dy = Math.floor g / 10
+        else if a < -10
+          dx = Math.floor a / 10
+          dy = Math.floor a / 10
 
           hx = dx + 0.5
           hy = dy + 0.5
@@ -202,7 +202,7 @@ module.exports =
 
       window.addEventListener 'mousemove', onMouseMoved
 
-      window.addEventListener 'devicemotion', onRotation
+      window.addEventListener 'deviceorientation', onRotation
 
       @update() if @opts.interactive
 

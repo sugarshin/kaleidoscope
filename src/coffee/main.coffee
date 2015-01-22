@@ -148,3 +148,9 @@ instagram.on 'search:submit', (ev, url) ->
           remove download
 
 window.addEventListener 'shake', changeNextImage
+
+menu = document.getElementById 'open-menu-button'
+menu.addEventListener 'click', (ev) ->
+  ev.preventDefault()
+  control = document.querySelector '.control'
+  control.classList.toggle 'opened'
