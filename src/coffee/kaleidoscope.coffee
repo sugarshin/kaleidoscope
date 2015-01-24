@@ -38,7 +38,10 @@ module.exports =
     HALF_PI: Math.PI / 2
     TWO_PI: Math.PI * 2
 
-    defaults:
+    _getRandomInt: (min, max) ->
+      return Math.floor(Math.random() * (max - min + 1)) + min
+
+    _defaults:
       output: null
       image: null
       offsetRotation: 0.0
@@ -52,9 +55,10 @@ module.exports =
       ease: 0.1
       fps: 60
       archive: null
+      startAutoPlay: null
 
     constructor: (opts) ->
-      @opts = extend {}, @defaults, opts
+      @opts = extend {}, @_defaults, opts
 
       @canvas = document.createElement 'canvas'
       @context = @canvas.getContext '2d'
@@ -63,7 +67,16 @@ module.exports =
 
       @initStyle()
       @render()
+
       @events()
+
+      if @opts.startAutoPlay is 'true'
+        @startAutoPlay()
+        @_isAutoPlaying = true
+      else
+        @addMouseEvent()
+        @addRotateEvent()
+        @_isAutoPlaying = false
 
       _anyRun = true
 
@@ -158,51 +171,106 @@ module.exports =
           start = new Date().getTime()
       return this
 
+    play: (x, y) ->
+      @opts.tx = x * @opts.radius * -2
+      @opts.ty = y * @opts.radius * 2
+      @opts.tr = Math.atan2 y, x
+      return this
+
+    stopPlay: ->
+      _cancelAnimeFrame @_autoPlayID
+      return this
+
+    autoPlay: ->
+      start = new Date().getTime()
+      posList = [
+        [-.2, -.2] # top lef
+        [.2, -.2] # top right
+        [.2, .2] # bottom right
+        [-.2, .2] # bottom left
+      ]
+      i = 0
+      do autoPlay = =>
+        @_autoPlayID = _requestAnimeFrame autoPlay
+        last = new Date().getTime()
+        if last - start >= 800 + @_getRandomInt(0, 500)
+          @play posList[i][0], posList[i][1]
+          if i is posList.length - 1
+            i = 0
+          else
+            i++
+          start = new Date().getTime()
+      return this
+
+    _onMouseMoved: (ev) =>
+      dx = ev.pageX / window.innerWidth
+      dy = ev.pageY / window.innerHeight
+      hx = dx - 0.5
+      hy = dy - 0.5
+      @play hx, hy
+      return this
+
+    addMouseEvent: ->
+      window.addEventListener 'mousemove', @_onMouseMoved
+      return this
+
+    rmMouseEvent: ->
+      window.removeEventListener 'mousemove', @_onMouseMoved
+      return this
+
+    # todo ---------------------------
+    _onRotation: (ev) =>
+      a = ev.alpha
+
+      if a > 10
+        dx = Math.floor a / 10
+        dy = Math.floor a / 10
+
+        hx = dx + 0.5
+        hy = dy + 0.5
+        @play hx, hy
+      else if a < -10
+        dx = Math.floor a / 10
+        dy = Math.floor a / 10
+
+        hx = dx + 0.5
+        hy = dy + 0.5
+        @play hx, hy
+      return this
+
+    addRotateEvent: ->
+      window.addEventListener 'deviceorientation', @_onRotation
+      return this
+
+    rmRotateEvent: ->
+      window.removeEventListener 'deviceorientation', @_onRotation
+      return this
+
+    startAutoPlay: ->
+      @rmMouseEvent()
+      @rmRotateEvent()
+      @autoPlay()
+      @_isAutoPlaying = true
+      return this
+
+    stopAutoPlay: ->
+      @stopPlay()
+      @addMouseEvent()
+      @addRotateEvent()
+      @_isAutoPlaying = false
+      return this
+
+    toggleAutoPlay: ->
+      if @_isAutoPlaying
+        @stopAutoPlay()
+      else
+        @startAutoPlay()
+      return this
+
     events: ->
       @opts.tx = @opts.offsetX
       @opts.ty = @opts.offsetY
       @opts.tr = @opts.offsetRotation
-
-      onMouseMoved = (ev) =>
-        dx = ev.pageX / window.innerWidth
-        dy = ev.pageY / window.innerHeight
-
-        hx = dx - 0.5
-        hy = dy - 0.5
-
-        @opts.tx = hx * @opts.radius * -2
-        @opts.ty = hy * @opts.radius * 2
-        @opts.tr = Math.atan2 hy, hx
-
-      # todo ---------------------------
-      onRotation = (ev) =>
-        a = ev.alpha
-
-        if a > 10
-          dx = Math.floor a / 10
-          dy = Math.floor a / 10
-
-          hx = dx + 0.5
-          hy = dy + 0.5
-
-          @opts.tx = hx * @opts.radius * 1.5
-          @opts.ty = hy * @opts.radius * -1.5
-          @opts.tr = Math.atan2 hy, hx
-
-        else if a < -10
-          dx = Math.floor a / 10
-          dy = Math.floor a / 10
-
-          hx = dx + 0.5
-          hy = dy + 0.5
-
-          @opts.tx = hx * @opts.radius * -1.5
-          @opts.ty = hy * @opts.radius * 1.5
-          @opts.tr = Math.atan2 hy, hx
-
-      window.addEventListener 'mousemove', onMouseMoved
-
-      window.addEventListener 'deviceorientation', onRotation
 
       @update() if @opts.interactive
 

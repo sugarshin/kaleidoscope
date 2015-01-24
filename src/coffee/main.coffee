@@ -19,6 +19,8 @@ button = document.getElementById 'search-instagram'
 
 instagram = new Instagram inputSearch, button
 
+toggleAuto = document.getElementById 'toggle-auto'
+
 download = document.getElementById 'download'
 
 shake = new Shake# threshold: 15
@@ -51,6 +53,7 @@ initKaleido = (img, src) ->
     slices: range.getVal()
     radius: Math.min w, h
     archive: document.getElementById 'archive-image'
+    startAutoPlay: toggleAuto.getAttribute 'data-auto'
 
   instance.kaleidoscope
     .outputArchive src, 0
@@ -147,7 +150,32 @@ instagram.on 'search:submit', (ev, url) ->
         if download?
           remove download
 
-window.addEventListener 'shake', changeNextImage
+# window.addEventListener 'shake', changeNextImage
+
+changeText = (el) ->
+  text = el.textContent
+  if text is 'On auto play'
+    el.textContent = 'Off auto play'
+  else
+    el.textContent = 'On auto play'
+
+toggleData = (el) ->
+  data = el.getAttribute 'data-auto'
+  if data is 'true'
+    el.setAttribute 'data-auto', 'false'
+  else
+    el.setAttribute 'data-auto', 'true'
+
+toggleAuto.addEventListener 'click', (ev) ->
+  ev.preventDefault()
+  instance.kaleidoscope?.toggleAutoPlay()
+  toggleData this
+  changeText this
+
+window.addEventListener 'shake', ->
+  instance.kaleidoscope?.toggleAutoPlay()
+  toggleData toggleAuto
+  changeText toggleAuto
 
 menu = document.getElementById 'open-menu-button'
 menu.addEventListener 'click', (ev) ->
