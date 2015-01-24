@@ -1,5 +1,5 @@
 Promise = require 'bluebird'
-Shake = require 'shakejs'
+Shake = require 'shake.js'
 
 FileRead = require './fileread'
 Range = require './range'

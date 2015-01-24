@@ -1,7 +1,6 @@
 gulp = require 'gulp'
 browserSync = require 'browser-sync'
 sequence = require 'gulp-sequence'
-replace = require 'gulp-replace'
 requireDir = require 'require-dir'
 $ = require './config.json'
 

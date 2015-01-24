@@ -16,7 +16,6 @@ getBanner = ->
 
   """
 
-
 gulp.task 'header', ->
   gulp.src "#{$.DEST}/#{$.MAIN}.js"
     .pipe header(getBanner())
