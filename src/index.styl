@@ -1,6 +1,7 @@
 @charset "utf-8"
 @import "nib"
-@import "../node_modules/stylus-normalize/normalize"
+
+normalize-css()
 
 // colors
 _primaryClr = #168eea
@@ -19,7 +20,6 @@ _googleplus = #dd4b39
 body
   background _headingClr
   color _borderClr
-  font-size modular-scale(8px, 1, ks-golden)
 
 input[type=search],
 button
@@ -34,9 +34,9 @@ button
   left 0
   box-sizing border-box 
   padding 4% 
+  transition transform .2s ease
   transform translateX(-100%)
   background rgba(0,0,0,.5)
-  transition transform .2s ease
   &.opened
     transform translateX(0)
 
@@ -50,15 +50,16 @@ button
     margin-bottom 2% 
 
 .open-menu-button
-  width 44px
-  height 44px
+  _size = 44px
+  width _size
+  height _size
   background _borderClr
   position absolute
   top 0
-  right -44px
+  right -(_size)
   a
-    width 44px
-    height 44px
+    width _size
+    height _size
     display block
     box-sizing border-box
     padding-top 11px 

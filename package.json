@@ -33,7 +33,6 @@
     "inherits": "^2.0.1",
     "jsonp-client": "^0.5.2",
     "node.extend": "^1.1.3",
-    "shake.js": "git://github.com/sugarshin/shake.js",
-    "stylus-normalize": "^3.0.3"
+    "shake.js": "git://github.com/sugarshin/shake.js"
   }
 }
