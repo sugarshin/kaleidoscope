@@ -20,7 +20,8 @@ http://sugarshin.github.io/kaleidoscope/
 
 ```shell
 npm i
-bower i
+
+gulp
 ```
 
 ## License
