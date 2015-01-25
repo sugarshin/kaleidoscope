@@ -14,7 +14,6 @@ range = new Range inputRange, text: document.getElementById 'result-range'
 
 inputSearch = document.getElementById 'search'
 button = document.getElementById 'search-instagram'
-
 instagram = new Instagram inputSearch, button
 
 toggleAuto = document.getElementById 'toggle-auto'
@@ -81,21 +80,21 @@ addImage = (img, src, num) ->
     .outputArchive src, num
     .setCurrentArchiveNum num
 
-changeNextImage = ->
-  img = document.createElement 'img'
-  srcs = fileRead.getLoadedSrcs()
-  current = instance.kaleidoscope.getCurrentArchiveNum()
+# changeNextImage = ->
+#   img = document.createElement 'img'
+#   srcs = fileRead.getLoadedSrcs()
+#   current = instance.kaleidoscope.getCurrentArchiveNum()
 
-  if current is srcs.length - 1
-    next = 0
-  else
-    next = current + 1
+#   if current is srcs.length - 1
+#     next = 0
+#   else
+#     next = current + 1
 
-  img.src = srcs[next]
+#   img.src = srcs[next]
 
-  instance.kaleidoscope
-    .updateImage img
-    .setCurrentArchiveNum next
+#   instance.kaleidoscope
+#     .updateImage img
+#     .setCurrentArchiveNum next
 
 setDownloadHref = (url) ->
   download.setAttribute 'href', url
