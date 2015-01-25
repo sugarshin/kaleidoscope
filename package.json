@@ -7,6 +7,11 @@
   "author": "sugarshin",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "dev": "gulp",
+    "build": "gulp build",
+    "deploy": "gulp gh-pages"
+  },
   "devDependencies": {
     "browser-sync": "^1.8.2",
     "browserify": "^8.0.2",

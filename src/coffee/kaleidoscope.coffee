@@ -67,6 +67,8 @@ module.exports =
       @initStyle()
       @render()
 
+      @draw()
+
       @events()
 
       if @opts.startAutoPlay is 'true'

@@ -29,7 +29,7 @@ shake.start()
 instance = {}
 
 wait = (time) ->
-  new Promise (resolve, reject) ->
+  return new Promise (resolve, reject) ->
     setTimeout ->
       resolve()
     , time
@@ -68,10 +68,10 @@ initKaleido = (img, src) ->
         .setCurrentArchiveNum parseInt target.attributes[1].value, 10
 
   instance.kaleidoscope.on 'updateimage', ->
-    wait(1000).then (_self) ->
+    wait(1000).then ->
       setDownloadHref instance.kaleidoscope.getDataURL()
 
-  wait(1000).then (_self) ->
+  wait(1000).then ->
     setDownloadHref instance.kaleidoscope.getDataURL()
 
 addImage = (img, src, num) ->

@@ -21,7 +21,7 @@ http://sugarshin.github.io/kaleidoscope/
 ```shell
 npm i
 
-gulp
+npm run dev
 ```
 
 ## License
