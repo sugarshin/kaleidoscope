@@ -1,14 +1,13 @@
 extend = require 'node.extend'
 jsonp = require 'jsonp-client'
-
 Promise = require 'bluebird'
 inherits = require 'inherits'
 EventEmitter2 = require('eventemitter2').EventEmitter2
 
-
-
 module.exports =
   class Instagram
+    "use strict"
+
     inherits @, EventEmitter2
 
     _ACCESS_TOKEN = '3060080.899ffd6.6bb01cbe1a284a8097983a1a443a3ec1'
@@ -16,6 +15,7 @@ module.exports =
     defaults: {}
 
     constructor: (@search, @button, opts) ->
+      EventEmitter2.call @
       @opts = extend {}, @defaults, opts
       @events()
 

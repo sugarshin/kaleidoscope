@@ -6,8 +6,6 @@ Range = require './range'
 Kaleidoscope = require './kaleidoscope'
 Instagram = require './instagram'
 
-
-
 inputFile = document.getElementById 'file'
 fileRead = new FileRead inputFile
 
@@ -150,7 +148,7 @@ instagram.on 'search:submit', (ev, url) ->
         if download?
           remove download
 
-# window.addEventListener 'shake', changeNextImage
+
 
 changeText = (el) ->
   text = el.textContent

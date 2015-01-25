@@ -1,14 +1,12 @@
 extend = require 'node.extend'
-
 inherits = require 'inherits'
 EventEmitter2 = require('eventemitter2').EventEmitter2
 
-
-
 module.exports =
   class Kaleidoscope
+    "use strict"
+
     inherits @, EventEmitter2
-    # Mixin.include @, Eventz
 
     _anyRun = false
     @isRun: -> _anyRun
@@ -58,6 +56,7 @@ module.exports =
       startAutoPlay: null
 
     constructor: (opts) ->
+      EventEmitter2.call @
       @opts = extend {}, @_defaults, opts
 
       @canvas = document.createElement 'canvas'
@@ -171,7 +170,7 @@ module.exports =
           start = new Date().getTime()
       return this
 
-    play: (x, y) ->
+    setPos: (x, y) ->
       @opts.tx = x * @opts.radius * -2
       @opts.ty = y * @opts.radius * 2
       @opts.tr = Math.atan2 y, x
@@ -194,7 +193,7 @@ module.exports =
         @_autoPlayID = _requestAnimeFrame autoPlay
         last = new Date().getTime()
         if last - start >= 800 + @_getRandomInt(0, 500)
-          @play posList[i][0], posList[i][1]
+          @setPos posList[i][0], posList[i][1]
           if i is posList.length - 1
             i = 0
           else
@@ -207,7 +206,7 @@ module.exports =
       dy = ev.pageY / window.innerHeight
       hx = dx - 0.5
       hy = dy - 0.5
-      @play hx, hy
+      @setPos hx, hy
       return this
 
     addMouseEvent: ->
@@ -221,21 +220,12 @@ module.exports =
     # todo ---------------------------
     _onRotation: (ev) =>
       a = ev.alpha
+      dx = a / 100
+      dy = a / 100
 
-      if a > 10
-        dx = Math.floor a / 10
-        dy = Math.floor a / 10
-
-        hx = dx + 0.5
-        hy = dy + 0.5
-        @play hx, hy
-      else if a < -10
-        dx = Math.floor a / 10
-        dy = Math.floor a / 10
-
-        hx = dx + 0.5
-        hy = dy + 0.5
-        @play hx, hy
+      hx = dx - 0.5
+      hy = dy - 0.5
+      @setPos hx, hy
       return this
 
     addRotateEvent: ->

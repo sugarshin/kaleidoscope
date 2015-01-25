@@ -1,19 +1,18 @@
 extend = require 'node.extend'
-
 inherits = require 'inherits'
 EventEmitter2 = require('eventemitter2').EventEmitter2
 
-
-
 module.exports =
   class Range
+    "use strict"
+
     inherits @, EventEmitter2
-    # Mixin.include @, Eventz
 
     defaults:
       text: null
 
     constructor: (@input, opts) ->
+      EventEmitter2.call @
       @opts = extend {}, @defaults, opts
       @setVal @input.value
       @changeText @getVal()

@@ -1,20 +1,18 @@
 extend = require 'node.extend'
-
 Promise = require 'bluebird'
-
 inherits = require 'inherits'
 EventEmitter2 = require('eventemitter2').EventEmitter2
 
-
-
 module.exports =
   class FileRead
+    "use strict"
+
     inherits @, EventEmitter2
-    # Mixin.include @, Eventz
 
     defaults: {}
 
     constructor: (@input, opts) ->
+      EventEmitter2.call @
       @opts = extend {}, @defaults, opts
       @events()
 
