@@ -11,11 +11,12 @@ module.exports =
 
     defaults: {}
 
-    constructor: (@input, opts) ->
+    constructor: (@input = null, opts) ->
       EventEmitter2.call @
       @opts = extend {}, @defaults, opts
       @events()
 
+    # src == dataURL
     setLoadedSrcs: (src) ->
       @_loadedSrcs or= []
       @_loadedSrcs.push src
@@ -35,12 +36,13 @@ module.exports =
           alert 'An error occurred reading this file.'
       reject new Error('An error occurred reading this file.')# ev.
 
-    read: (event) ->
+    read: (files) ->
       promises = []
-      for file, i in event.target.files
+      for file, i in files
+        console.log file
         unless file.type.match 'image.*' then continue
         do (file) =>
-          promises.push promise = new Promise (resolve, reject) =>
+          promises.push new Promise (resolve, reject) =>
             reader = new FileReader
 
             reader.onload = (ev) =>
@@ -52,9 +54,10 @@ module.exports =
 
             reader.readAsDataURL file
 
-      return promiseAll = new Promise.all promises
+      return new Promise.all promises
 
     events: ->
-      @input.addEventListener 'change', (ev) =>
-        @emit 'input:change', ev
-        # @trigger 'input:change', ev
+      if @input?
+        @input.addEventListener 'change', (ev) =>
+          @emit 'input:change', ev
+          # @trigger 'input:change', ev

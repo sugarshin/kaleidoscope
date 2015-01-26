@@ -1,5 +1,6 @@
 Promise = require 'bluebird'
 Shake = require 'shake.js'
+TD = require 'throttle-debounce'
 
 FileRead = require './fileread'
 Range = require './range'
@@ -36,19 +37,22 @@ wait = (time) ->
 
 remove = (el) -> el.parentNode.removeChild el
 
-initKaleido = (img, src) ->
+getSizeRadius = ->
   if window.ontouchstart isnt undefined
-    w = window.screen.availWidth / 2
-    h = window.screen.availHeight / 2
+    w = window.screen.availWidth# / 2
+    h = window.screen.availHeight# / 2
   else
-    w = window.innerWidth / 2
-    h = window.innerHeight / 2
+    w = window.innerWidth# / 2
+    h = window.innerHeight# / 2
+  return Math.sqrt( (Math.max(w, h) ** 2) + (Math.min(w, h) ** 2) ) / 2#Math.min w, h
 
+initKaleido = (img, src) ->
   instance.kaleidoscope = new Kaleidoscope
     output: document.getElementById 'kaleidoscope'
     image: img
     slices: range.getVal()
-    radius: Math.min w, h
+    # sqrt(縦 ** 2 + 横 ** 2) / 2 -> 半径
+    radius: getSizeRadius()
     archive: document.getElementById 'archive-image'
     startAutoPlay: toggleAuto.getAttribute 'data-auto'
 
@@ -101,9 +105,26 @@ setDownloadHref = (url) ->
 
 
 
+# todo
+# 初回画像セット
+do ->
+  img = document.createElement 'img'
+  src = 'example.png'
+  img.src = src
+  fileRead.setLoadedSrcs src
+  len = fileRead.getLoadedSrcs().length
+
+  # todo -----------------------------
+  if Kaleidoscope.isRun()
+    addImage img, src, len - 1
+  else
+    initKaleido img, src
+
+
+
 fileRead.on 'input:change', (ev) ->
   fileRead
-    .read ev
+    .read ev.target.files
     .then (evArr) ->
       img = document.createElement 'img'
       src = evArr[0].target.result
@@ -179,3 +200,14 @@ menu.addEventListener 'click', (ev) ->
   ev.preventDefault()
   control = document.querySelector '.control'
   control.classList.toggle 'opened'
+
+
+
+onWindowResize = -> instance.kaleidoscope?.updateRadius getSizeRadius()
+window.addEventListener 'resize', TD.debounce 300, onWindowResize
+
+# todo: canvasクリック用
+document.getElementById('kaleidoscope').addEventListener 'click', ->
+  clickEvent = document.createEvent 'HTMLEvents'
+  clickEvent.initEvent 'click', true, false
+  inputFile.dispatchEvent clickEvent

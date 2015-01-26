@@ -64,7 +64,7 @@ module.exports =
 
       @_currentArchiveNum = 0
 
-      @initStyle()
+      @setStyle()
       @render()
 
       @draw()
@@ -81,7 +81,7 @@ module.exports =
 
       _anyRun = true
 
-    initStyle: ->
+    setStyle: ->
       @canvas.style.cssText = "
         position: absolute;
         margin-top: #{-@opts.radius}px;
@@ -104,6 +104,13 @@ module.exports =
 
     updateSlices: (num) ->
       @opts.slices = num
+      @emit 'updateslices'
+      return this
+
+    updateRadius: (val) ->
+      @opts.radius = val
+      @setStyle()
+      @emit 'updateradius'
       return this
 
     setCurrentArchiveNum: (num) ->
