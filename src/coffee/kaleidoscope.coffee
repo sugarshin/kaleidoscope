@@ -1,4 +1,4 @@
-extend = require 'node.extend'
+extend = require 'extend'
 inherits = require 'inherits'
 EventEmitter2 = require('eventemitter2').EventEmitter2
 

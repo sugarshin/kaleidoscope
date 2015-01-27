@@ -1,4 +1,4 @@
-extend = require 'node.extend'
+extend = require 'extend'
 jsonp = require 'jsonp-client'
 Promise = require 'bluebird'
 inherits = require 'inherits'
