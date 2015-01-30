@@ -1,25 +1,26 @@
 Promise = require 'bluebird'
 Shake = require 'shake.js'
 TD = require 'throttle-debounce'
+dom = require 'domquery'
 
 FileRead = require './fileread'
 Range = require './range'
 Kaleidoscope = require './kaleidoscope'
 Instagram = require './instagram'
 
-inputFile = document.getElementById 'file'
-fileRead = new FileRead inputFile
+$inputFile = dom '#file'
+fileRead = new FileRead $inputFile[0]
 
-inputRange = document.getElementById 'range'
-range = new Range inputRange, text: document.getElementById 'result-range'
+$inputRange = dom '#range'
+range = new Range $inputRange[0], text: dom('#result-range')[0]
 
-inputSearch = document.getElementById 'search'
-button = document.getElementById 'search-instagram'
-instagram = new Instagram inputSearch, button
+$inputSearch = dom '#search'
+$button = dom '#search-instagram'
+instagram = new Instagram $inputSearch[0], $button[0]
 
-toggleAuto = document.getElementById 'toggle-auto'
+$toggleAuto = dom '#toggle-auto'
 
-download = document.getElementById 'download'
+$download = dom '#download'
 
 shake = new Shake# threshold: 15
 shake.start()
@@ -35,7 +36,7 @@ wait = (time) ->
       resolve()
     , time
 
-remove = (el) -> el.parentNode.removeChild el
+# remove = (el) -> el.parentNode.removeChild el
 
 getSizeRadius = ->
   if window.ontouchstart isnt undefined
@@ -48,13 +49,13 @@ getSizeRadius = ->
 
 initKaleido = (img, src) ->
   instance.kaleidoscope = new Kaleidoscope
-    output: document.getElementById 'kaleidoscope'
+    output: dom('#kaleidoscope')[0]
     image: img
     slices: range.getVal()
     # sqrt(縦 ** 2 + 横 ** 2) / 2 -> 半径
     radius: getSizeRadius()
-    archive: document.getElementById 'archive-image'
-    startAutoPlay: toggleAuto.getAttribute 'data-auto'
+    archive: dom('#archive-image')[0]
+    startAutoPlay: $toggleAuto.attr 'data-auto'
 
   instance.kaleidoscope
     .outputArchive src, 0
@@ -100,8 +101,7 @@ addImage = (img, src, num) ->
 #     .updateImage img
 #     .setCurrentArchiveNum next
 
-setDownloadHref = (url) ->
-  download.setAttribute 'href', url
+setDownloadHref = (url) -> $download.attr 'href', url
 
 
 
@@ -165,41 +165,48 @@ instagram.on 'search:submit', (ev, url) ->
         else
           initKaleido img, src
 
-        if download?
-          remove download
+        if $download? then $download.remove()
 
 
 
-changeText = (el) ->
-  text = el.textContent
+changeText = ($el) ->
+  text = $el.text()#Content
   if text is 'On auto play'
-    el.textContent = 'Off auto play'
+    $el.text 'Off auto play'
   else
-    el.textContent = 'On auto play'
+    $el.text 'On auto play'
 
-toggleData = (el) ->
-  data = el.getAttribute 'data-auto'
+toggleData = ($el) ->
+  data = $el.attr 'data-auto'
   if data is 'true'
-    el.setAttribute 'data-auto', 'false'
+    $el.attr 'data-auto', 'false'
   else
-    el.setAttribute 'data-auto', 'true'
+    $el.attr 'data-auto', 'true'
 
-toggleAuto.addEventListener 'click', (ev) ->
+$toggleAuto[0].addEventListener 'click', (ev) ->
   ev.preventDefault()
   instance.kaleidoscope?.toggleAutoPlay()
-  toggleData this
-  changeText this
+  toggleData $toggleAuto
+  changeText $toggleAuto
+
+#-- Bug --
+# $toggleAuto.on 'click', (ev) ->
+#   ev.preventDefault()
+#   instance.kaleidoscope?.toggleAutoPlay()
+#   toggleData $toggleAuto
+#   changeText $toggleAuto
+# #, false
 
 window.addEventListener 'shake', ->
   instance.kaleidoscope?.toggleAutoPlay()
   toggleData toggleAuto
   changeText toggleAuto
 
-menu = document.getElementById 'open-menu-button'
-menu.addEventListener 'click', (ev) ->
+menu = dom '#open-menu-button'
+menu[0].addEventListener 'click', (ev) ->
   ev.preventDefault()
-  control = document.querySelector '.control'
-  control.classList.toggle 'opened'
+  control = dom '.control'
+  control.toggleClass 'opened'
 
 
 
@@ -207,7 +214,7 @@ onWindowResize = -> instance.kaleidoscope?.updateRadius getSizeRadius()
 window.addEventListener 'resize', TD.debounce 300, onWindowResize
 
 # todo: canvasクリック用
-document.getElementById('kaleidoscope').addEventListener 'click', ->
+dom('#kaleidoscope')[0].addEventListener 'click', ->
   clickEvent = document.createEvent 'HTMLEvents'
   clickEvent.initEvent 'click', true, false
-  inputFile.dispatchEvent clickEvent
+  $inputFile[0].dispatchEvent clickEvent
