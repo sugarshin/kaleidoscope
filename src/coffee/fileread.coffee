@@ -1,6 +1,7 @@
 extend = require 'extend'
 Promise = require 'bluebird'
 inherits = require 'inherits'
+bean = require 'bean'
 EventEmitter2 = require('eventemitter2').EventEmitter2
 
 module.exports =
@@ -11,7 +12,7 @@ module.exports =
 
     defaults: {}
 
-    constructor: (@input = null, opts) ->
+    constructor: (@input, opts) ->
       EventEmitter2.call @
       @opts = extend {}, @defaults, opts
       @events()
@@ -57,7 +58,5 @@ module.exports =
       return new Promise.all promises
 
     events: ->
-      if @input?
-        @input.addEventListener 'change', (ev) =>
-          @emit 'input:change', ev
-          # @trigger 'input:change', ev
+      bean.on @input, 'change', (ev) =>
+        @emit 'input:change', ev

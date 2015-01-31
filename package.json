@@ -33,6 +33,7 @@
     "vinyl-source-stream": "^1.0.0"
   },
   "dependencies": {
+    "bean": "^1.0.15",
     "bluebird": "^2.5.3",
     "domquery": "^1.2.0",
     "eventemitter2": "^0.4.14",

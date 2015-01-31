@@ -1,7 +1,8 @@
 Promise = require 'bluebird'
 Shake = require 'shake.js'
-TD = require 'throttle-debounce'
+td = require 'throttle-debounce'
 dom = require 'domquery'
+bean = require 'bean'
 
 FileRead = require './fileread'
 Range = require './range'
@@ -84,22 +85,6 @@ addImage = (img, src, num) ->
     .updateImage img
     .outputArchive src, num
     .setCurrentArchiveNum num
-
-# changeNextImage = ->
-#   img = document.createElement 'img'
-#   srcs = fileRead.getLoadedSrcs()
-#   current = instance.kaleidoscope.getCurrentArchiveNum()
-
-#   if current is srcs.length - 1
-#     next = 0
-#   else
-#     next = current + 1
-
-#   img.src = srcs[next]
-
-#   instance.kaleidoscope
-#     .updateImage img
-#     .setCurrentArchiveNum next
 
 setDownloadHref = (url) -> $download.attr 'href', url
 
@@ -211,10 +196,8 @@ menu[0].addEventListener 'click', (ev) ->
 
 
 onWindowResize = -> instance.kaleidoscope?.updateRadius getSizeRadius()
-window.addEventListener 'resize', TD.debounce 300, onWindowResize
+window.addEventListener 'resize', td.debounce 300, onWindowResize
 
 # todo: canvasクリック用
-dom('#kaleidoscope')[0].addEventListener 'click', ->
-  clickEvent = document.createEvent 'HTMLEvents'
-  clickEvent.initEvent 'click', true, false
-  $inputFile[0].dispatchEvent clickEvent
+bean.on dom('#kaleidoscope')[0], 'click', ->
+  bean.fire $inputFile[0], 'click'
