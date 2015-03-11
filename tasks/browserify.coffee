@@ -1,7 +1,7 @@
 gulp = require 'gulp'
 browserify = require 'browserify'
 source = require 'vinyl-source-stream'
-$ = require './../config.json'
+$ = require('../package.json').projectConf
 
 gulp.task 'browserify', ->
   browserify

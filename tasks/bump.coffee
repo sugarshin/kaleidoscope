@@ -3,8 +3,7 @@ bump = require 'gulp-bump'
 
 $ =
   json: [
-    './*.json'
-    '!./config.json'
+    './package.json'
   ]
 
 gulp.task 'bump-major', ->

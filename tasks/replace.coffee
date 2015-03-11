@@ -1,6 +1,6 @@
 gulp = require 'gulp'
 replace = require 'gulp-replace'
-$ = require './../config.json'
+$ = require('../package.json').projectConf
 
 gulp.task 'replace-min', ->
   gulp.src "./#{$.DEST}/index.html"

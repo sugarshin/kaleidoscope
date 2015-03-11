@@ -41,5 +41,11 @@
     "object-assign": "^2.0.0",
     "shake.js": "git://github.com/sugarshin/shake.js",
     "throttle-debounce": "^0.1.0"
+  },
+  "projectConf": {
+    "NAME": "kaleidoscope",
+    "MAIN": "main",
+    "SRC": "src",
+    "DEST": "dest"
   }
 }

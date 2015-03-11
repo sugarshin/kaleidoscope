@@ -2,7 +2,7 @@ gulp = require 'gulp'
 browserSync = require 'browser-sync'
 sequence = require 'gulp-sequence'
 requireDir = require 'require-dir'
-$ = require './config.json'
+$ = require('./package.json').projectConf
 
 requireDir './tasks'
 

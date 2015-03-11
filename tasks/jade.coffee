@@ -2,7 +2,7 @@ gulp = require 'gulp'
 jade = require 'gulp-jade'
 plumber = require 'gulp-plumber'
 notify = require 'gulp-notify'
-$ = require './../config.json'
+$ = require('../package.json').projectConf
 
 path =
   html: [

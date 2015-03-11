@@ -1,7 +1,7 @@
 gulp = require 'gulp'
 uglify = require 'gulp-uglify'
 rename = require 'gulp-rename'
-$ = require './../config.json'
+$ = require('../package.json').projectConf
 
 gulp.task 'uglify', ->
   gulp.src "./#{$.DEST}/#{$.MAIN}.js"

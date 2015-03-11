@@ -1,7 +1,7 @@
 gulp = require 'gulp'
 header = require 'gulp-header'
 fs = require 'fs'
-$ = require './../config.json'
+$ = require('../package.json').projectConf
 
 getPackageJson = -> JSON.parse(fs.readFileSync('./package.json'))
 
