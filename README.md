@@ -14,6 +14,8 @@ http://sugarshin.github.io/kaleidoscope/
 
 ## Contributing
 
+node v0.12.0
+
 [gulp.js](//gulpjs.com/)
 
 [CoffeeScript](//coffeescript.org/)

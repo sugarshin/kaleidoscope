@@ -2,7 +2,6 @@ Promise = require 'bluebird'
 EventEmitter = require('events').EventEmitter
 jsonp = require 'jsonp-client'
 bean = require 'bean'
-objectAssign = require 'object-assign'
 
 module.exports =
 class Instagram extends EventEmitter
@@ -10,11 +9,8 @@ class Instagram extends EventEmitter
 
   _ACCESS_TOKEN = '3060080.899ffd6.6bb01cbe1a284a8097983a1a443a3ec1'
 
-  defaults: {}
-
-  constructor: (@search, @button, opts) ->
+  constructor: (@search, @button, @opts) ->
     EventEmitter.call @
-    @opts = objectAssign {}, @defaults, opts
     @events()
 
   _getRandomInt: (min, max) ->

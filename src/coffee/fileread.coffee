@@ -1,17 +1,13 @@
 Promise = require 'bluebird'
 EventEmitter = require('events').EventEmitter
 bean = require 'bean'
-objectAssign = require 'object-assign'
 
 module.exports =
 class FileRead extends EventEmitter
   "use strict"
 
-  defaults: {}
-
-  constructor: (@input, opts) ->
+  constructor: (@input, @opts) ->
     EventEmitter.call @
-    @opts = objectAssign {}, @defaults, opts
     @events()
 
   # src == dataURL

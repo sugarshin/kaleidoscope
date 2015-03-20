@@ -1,6 +1,7 @@
 Promise = require 'bluebird'
 Shake = require 'shake.js'
-td = require 'throttle-debounce'
+td =
+  debounce: require 'debounce'
 dom = require 'domquery'
 bean = require 'bean'
 
@@ -41,12 +42,12 @@ wait = (time) ->
 
 getSizeRadius = ->
   if window.ontouchstart isnt undefined
-    w = window.screen.availWidth# / 2
-    h = window.screen.availHeight# / 2
+    w = window.screen.availWidth
+    h = window.screen.availHeight
   else
-    w = window.innerWidth# / 2
-    h = window.innerHeight# / 2
-  return Math.sqrt( (Math.max(w, h) ** 2) + (Math.min(w, h) ** 2) ) / 2#Math.min w, h
+    w = window.innerWidth
+    h = window.innerHeight
+  return Math.sqrt( (Math.max(w, h) ** 2) + (Math.min(w, h) ** 2) ) / 2
 
 initKaleido = (img, src) ->
   instance.kaleidoscope = new Kaleidoscope
@@ -168,27 +169,19 @@ toggleData = ($el) ->
   else
     $el.attr 'data-auto', 'true'
 
-$toggleAuto[0].addEventListener 'click', (ev) ->
+bean.on $toggleAuto[0], 'click', (ev) ->
   ev.preventDefault()
   instance.kaleidoscope?.toggleAutoPlay()
   toggleData $toggleAuto
   changeText $toggleAuto
 
-#-- Bug --
-# $toggleAuto.on 'click', (ev) ->
-#   ev.preventDefault()
-#   instance.kaleidoscope?.toggleAutoPlay()
-#   toggleData $toggleAuto
-#   changeText $toggleAuto
-# #, false
-
-window.addEventListener 'shake', ->
+bean.on window, 'shake', ->
   instance.kaleidoscope?.toggleAutoPlay()
   toggleData toggleAuto
   changeText toggleAuto
 
 menu = dom '#open-menu-button'
-menu[0].addEventListener 'click', (ev) ->
+bean.on menu[0], 'click', (ev) ->
   ev.preventDefault()
   control = dom '.control'
   control.toggleClass 'opened'
@@ -196,8 +189,8 @@ menu[0].addEventListener 'click', (ev) ->
 
 
 onWindowResize = -> instance.kaleidoscope?.updateRadius getSizeRadius()
-window.addEventListener 'resize', td.debounce 300, onWindowResize
+bean.on window, 'resize.kaleidoscope', td.debounce onWindowResize, 300
 
-# todo: canvasクリック用
+# todo: for canvas click
 bean.on dom('#kaleidoscope')[0], 'click', ->
   bean.fire $inputFile[0], 'click'

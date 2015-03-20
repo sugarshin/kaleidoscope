@@ -15,7 +15,6 @@
   "devDependencies": {
     "browser-sync": "^1.8.2",
     "browserify": "^8.0.2",
-    "browserify-shim": "^3.8.2",
     "coffee-script": "^1.8.0",
     "coffeeify": "^1.0.0",
     "gulp": "^3.8.10",
@@ -36,14 +35,13 @@
   "dependencies": {
     "bean": "^1.0.15",
     "bluebird": "^2.5.3",
+    "debounce": "^1.0.0",
     "domquery": "^1.2.0",
     "jsonp-client": "^0.5.2",
     "object-assign": "^2.0.0",
-    "shake.js": "git://github.com/sugarshin/shake.js",
-    "throttle-debounce": "^0.1.0"
+    "shake.js": "git://github.com/sugarshin/shake.js"
   },
   "projectConf": {
-    "NAME": "kaleidoscope",
     "MAIN": "main",
     "SRC": "src",
     "DEST": "dest"
