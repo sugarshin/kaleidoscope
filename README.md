@@ -14,16 +14,19 @@ http://sugarshin.github.io/kaleidoscope/
 
 ## Contributing
 
-node v0.12.0
-
-[gulp.js](//gulpjs.com/)
-
-[CoffeeScript](//coffeescript.org/)
+* beefy
+* browserify
+* coffeeify
+* jade
+* replace
+* uglify-js
 
 ```shell
 npm i
 
 npm start
+
+npm run build
 ```
 
 ## License
