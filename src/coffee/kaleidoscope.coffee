@@ -1,9 +1,10 @@
+"use strict"
+
 EventEmitter = require('events').EventEmitter
 objectAssign = require 'object-assign'
 
 module.exports =
 class Kaleidoscope extends EventEmitter
-  "use strict"
 
   _anyRun = false
   @isRun: -> _anyRun

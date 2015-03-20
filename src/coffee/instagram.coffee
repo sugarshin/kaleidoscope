@@ -1,3 +1,5 @@
+"use strict"
+
 Promise = require 'bluebird'
 EventEmitter = require('events').EventEmitter
 jsonp = require 'jsonp-client'
@@ -5,7 +7,6 @@ bean = require 'bean'
 
 module.exports =
 class Instagram extends EventEmitter
-  "use strict"
 
   _ACCESS_TOKEN = '3060080.899ffd6.6bb01cbe1a284a8097983a1a443a3ec1'
 

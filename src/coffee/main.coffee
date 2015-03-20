@@ -1,3 +1,13 @@
+###!
+ * @license kaleidoscope
+ * (c) sugarshin
+ * License: MIT
+###
+
+"use strict"
+
+require('insert-css') require '../index.styl'
+
 Promise = require 'bluebird'
 Shake = require 'shake.js'
 td =

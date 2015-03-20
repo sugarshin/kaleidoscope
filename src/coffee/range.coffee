@@ -1,9 +1,10 @@
+"use strict"
+
 EventEmitter = require('events').EventEmitter
 objectAssign = require 'object-assign'
 
 module.exports =
 class Range extends EventEmitter
-  "use strict"
 
   defaults:
     text: null

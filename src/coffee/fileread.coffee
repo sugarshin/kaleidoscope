@@ -1,10 +1,11 @@
+"use strict"
+
 Promise = require 'bluebird'
 EventEmitter = require('events').EventEmitter
 bean = require 'bean'
 
 module.exports =
 class FileRead extends EventEmitter
-  "use strict"
 
   constructor: (@input, @opts) ->
     EventEmitter.call @
