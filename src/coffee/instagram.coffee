@@ -2,7 +2,7 @@
 
 Promise = require 'bluebird'
 EventEmitter = require('events').EventEmitter
-jsonp = require 'jsonp-client'
+jsonp = require 'jsonp'
 bean = require 'bean'
 
 module.exports =
@@ -17,13 +17,9 @@ class Instagram extends EventEmitter
   _getRandomInt: (min, max) ->
     return Math.floor(Math.random() * (max - min + 1)) + min
 
-  _addCallback: (url) ->
-    if url.match(/callback=[a-z]/i) then return url
-    return "#{url}#{("&callback=cb#{Math.random()}").replace('.', '')}"
-
   get: (url) ->
     return new Promise (resolve, reject) =>
-      jsonp @_addCallback(url), (err, data) ->
+      jsonp url, (err, data) ->
         if err?
           reject err
         else

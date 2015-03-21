@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "npm run jade && beefy ./src/coffee/main.coffee --cwd dest --live --open -- -t coffeeify -t stylify --extension='.coffee'",
+    "start": "npm run jade && npm run browserify && beefy ./src/coffee/main.coffee --cwd dest --live --open -- -t coffeeify -t stylify --extension='.coffee'",
     "jade": "jade src/ -o dest/",
     "browserify": "browserify -t coffeeify -t stylify --extension='.coffee' ./src/coffee/main.coffee -o ./dest/main.js",
     "replace-min": "replace 'main.js' 'main.min.js' dest/index.html",
@@ -30,7 +30,7 @@
     "debounce": "^1.0.0",
     "domquery": "^1.2.0",
     "insert-css": "^0.2.0",
-    "jsonp-client": "^0.5.2",
+    "jsonp": "^0.2.0",
     "nib": "^1.1.0",
     "object-assign": "^2.0.0",
     "shake.js": "git://github.com/sugarshin/shake.js",
