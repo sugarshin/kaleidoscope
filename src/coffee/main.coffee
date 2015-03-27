@@ -10,8 +10,7 @@ require('insert-css') require '../index.styl'
 
 Promise = require 'bluebird'
 Shake = require 'shake.js'
-td =
-  debounce: require 'debounce'
+td = debounce: require 'debounce'
 dom = require 'domquery'
 bean = require 'bean'
 

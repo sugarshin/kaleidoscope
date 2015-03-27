@@ -1,6 +1,6 @@
 "use strict"
 
-EventEmitter = require('events').EventEmitter
+{ EventEmitter } = require 'events'
 objectAssign = require 'object-assign'
 
 module.exports =

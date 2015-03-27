@@ -1,7 +1,7 @@
 "use strict"
 
 Promise = require 'bluebird'
-EventEmitter = require('events').EventEmitter
+{ EventEmitter } = require 'events'
 jsonp = require 'jsonp'
 bean = require 'bean'
 
@@ -18,7 +18,7 @@ class Instagram extends EventEmitter
     return Math.floor(Math.random() * (max - min + 1)) + min
 
   get: (url) ->
-    return new Promise (resolve, reject) =>
+    new Promise (resolve, reject) =>
       jsonp url, (err, data) ->
         if err?
           reject err

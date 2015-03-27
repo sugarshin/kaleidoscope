@@ -1,6 +1,6 @@
 "use strict"
 
-EventEmitter = require('events').EventEmitter
+{ EventEmitter } = require 'events'
 objectAssign = require 'object-assign'
 
 module.exports =
@@ -274,5 +274,4 @@ class Kaleidoscope extends EventEmitter
     @opts.archive.addEventListener 'click', (ev) =>
       @emit 'archive:click', ev
       # @trigger 'archive:click', ev
-
     return this

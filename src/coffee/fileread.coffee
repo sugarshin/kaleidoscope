@@ -1,7 +1,7 @@
 "use strict"
 
 Promise = require 'bluebird'
-EventEmitter = require('events').EventEmitter
+{ EventEmitter } = require 'events'
 bean = require 'bean'
 
 module.exports =
