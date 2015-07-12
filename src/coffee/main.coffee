@@ -8,30 +8,34 @@
 
 require('insert-css') require '../index.styl'
 
-Promise = require 'bluebird'
+{ Promise } = require 'es6-promise'
 Shake = require 'shake.js'
-td = debounce: require 'debounce'
-dom = require 'domquery'
-bean = require 'bean'
+debounce = require 'debounce'
 
 FileRead = require './fileread'
 Range = require './range'
 Kaleidoscope = require './kaleidoscope'
 Instagram = require './instagram'
+{
+  querySelector
+  addListener
+  remove
+  toggleClass
+} = require './util'
 
-$inputFile = dom '#file'
-fileRead = new FileRead $inputFile[0]
+inputFile = querySelector '#file'
+fileRead = new FileRead inputFile
 
-$inputRange = dom '#range'
-range = new Range $inputRange[0], text: dom('#result-range')[0]
+inputRange = querySelector '#range'
+range = new Range inputRange, text: querySelector '#result-range'
 
-$inputSearch = dom '#search'
-$button = dom '#search-instagram'
-instagram = new Instagram $inputSearch[0], $button[0]
+inputSearch = querySelector '#search'
+button = querySelector '#search-instagram'
+instagram = new Instagram inputSearch, button
 
-$toggleAuto = dom '#toggle-auto'
+toggleAuto = querySelector '#toggle-auto'
 
-$download = dom '#download'
+download = querySelector '#download'
 
 shake = new Shake# threshold: 15
 shake.start()
@@ -47,8 +51,6 @@ wait = (time) ->
       resolve()
     , time
 
-# remove = (el) -> el.parentNode.removeChild el
-
 getSizeRadius = ->
   if window.ontouchstart isnt undefined
     w = window.screen.availWidth
@@ -60,13 +62,13 @@ getSizeRadius = ->
 
 initKaleido = (img, src) ->
   instance.kaleidoscope = new Kaleidoscope
-    output: dom('#kaleidoscope')[0]
+    output: querySelector '#kaleidoscope'
     image: img
     slices: range.getVal()
     # sqrt(縦 ** 2 + 横 ** 2) / 2 -> 半径
     radius: getSizeRadius()
-    archive: dom('#archive-image')[0]
-    startAutoPlay: $toggleAuto.attr 'data-auto'
+    archive: querySelector '#archive-image'
+    startAutoPlay: toggleAuto.getAttribute 'data-auto'
 
   instance.kaleidoscope
     .outputArchive src, 0
@@ -96,7 +98,7 @@ addImage = (img, src, num) ->
     .outputArchive src, num
     .setCurrentArchiveNum num
 
-setDownloadHref = (url) -> $download.attr 'href', url
+setDownloadHref = (url) -> download.setAttribute 'href', url
 
 
 
@@ -160,46 +162,48 @@ instagram.on 'search:submit', (ev, url) ->
         else
           initKaleido img, src
 
-        if $download? then $download.remove()
+        if download? then remove download
 
 
 
-changeText = ($el) ->
-  text = $el.text()#Content
+toggleText = (el) ->
+  text = el.textContent
   if text is 'On auto play'
-    $el.text 'Off auto play'
+    el.textContent = 'Off auto play'
   else
-    $el.text 'On auto play'
+    el.textContent = 'On auto play'
 
-toggleData = ($el) ->
-  data = $el.attr 'data-auto'
+toggleDataAuto = (el) ->
+  data = el.getAttribute 'data-auto'
   if data is 'true'
-    $el.attr 'data-auto', 'false'
+    el.setAttribute 'data-auto', 'false'
   else
-    $el.attr 'data-auto', 'true'
+    el.setAttribute 'data-auto', 'true'
 
-bean.on $toggleAuto[0], 'click', (ev) ->
+addListener toggleAuto, 'click', (ev) ->
   ev.preventDefault()
   instance.kaleidoscope?.toggleAutoPlay()
-  toggleData $toggleAuto
-  changeText $toggleAuto
+  toggleDataAuto toggleAuto
+  toggleText toggleAuto
 
-bean.on window, 'shake', ->
+addListener window, 'shake', ->
   instance.kaleidoscope?.toggleAutoPlay()
-  toggleData toggleAuto
-  changeText toggleAuto
+  toggleDataAuto toggleAuto
+  toggleText toggleAuto
 
-menu = dom '#open-menu-button'
-bean.on menu[0], 'click', (ev) ->
+menu = querySelector '#open-menu-button'
+addListener menu, 'click', (ev) ->
   ev.preventDefault()
-  control = dom '.control'
-  control.toggleClass 'opened'
+  control = querySelector '.control'
+  toggleClass control, 'opened'
 
 
 
 onWindowResize = -> instance.kaleidoscope?.updateRadius getSizeRadius()
-bean.on window, 'resize.kaleidoscope', td.debounce onWindowResize, 300
+addListener window, 'resize.kaleidoscope', debounce onWindowResize, 300
 
 # todo: for canvas click
-bean.on dom('#kaleidoscope')[0], 'click', ->
-  bean.fire $inputFile[0], 'click'
+addListener querySelector('#kaleidoscope'), 'click', ->
+  clickEvent = document.createEvent 'HTMLEvents'
+  clickEvent.initEvent 'click', true, false
+  inputFile.dispatchEvent clickEvent

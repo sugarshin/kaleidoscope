@@ -1,14 +1,15 @@
 "use strict"
 
-Promise = require 'bluebird'
 { EventEmitter } = require 'events'
-bean = require 'bean'
+{ Promise } = require 'es6-promise'
+
+{ addListener } = require './util'
 
 module.exports =
 class FileRead extends EventEmitter
 
   constructor: (@input, @opts) ->
-    EventEmitter.call @
+    super()
     @events()
 
   # src == dataURL
@@ -32,24 +33,24 @@ class FileRead extends EventEmitter
     reject new Error('An error occurred reading this file.')# ev.
 
   read: (files) ->
-    promises = []
-    for file, i in files
+    fileArray = []
+    for f, i in files
+      file = files.item i
       unless file.type.match 'image.*' then continue
-      do (file) =>
-        promises.push new Promise (resolve, reject) =>
-          reader = new FileReader
+      fileArray.push file
+    return Promise.all fileArray.map (file) =>
+      new Promise (resolve, reject) =>
+        reader = new FileReader
 
-          reader.onload = (ev) =>
-            @setLoadedSrcs ev.target.result
-            resolve ev
+        reader.onload = (ev) =>
+          @setLoadedSrcs ev.target.result
+          resolve ev
 
-          reader.onerror = (ev) =>
-            @_errorFunc ev, reject
+        reader.onerror = (ev) =>
+          @_errorFunc ev, reject
 
-          reader.readAsDataURL file
-
-    return new Promise.all promises
+        reader.readAsDataURL file
 
   events: ->
-    bean.on @input, 'change', (ev) =>
+    addListener @input, 'change', (ev) =>
       @emit 'input:change', ev

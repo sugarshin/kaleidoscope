@@ -3,6 +3,8 @@
 { EventEmitter } = require 'events'
 objectAssign = require 'object-assign'
 
+{ addListener, rmListener } = require './util'
+
 module.exports =
 class Kaleidoscope extends EventEmitter
 
@@ -54,7 +56,7 @@ class Kaleidoscope extends EventEmitter
     startAutoPlay: null
 
   constructor: (opts) ->
-    EventEmitter.call @
+    super()
     @opts = objectAssign {}, @_defaults, opts
 
     @canvas = document.createElement 'canvas'
@@ -161,10 +163,10 @@ class Kaleidoscope extends EventEmitter
     return this
 
   update: ->
-    start = new Date().getTime()
+    start = Date.now()
     do update = =>
       _requestAnimeFrame update
-      last = new Date().getTime()
+      last = Date.now()
       if last - start >= 1000 / @opts.fps
         delta = @opts.tr - @opts.offsetRotation
         theta = Math.atan2(Math.sin(delta), Math.cos(delta))
@@ -174,7 +176,7 @@ class Kaleidoscope extends EventEmitter
         @opts.offsetRotation += (theta - @opts.offsetRotation) * @opts.ease
 
         @draw()
-        start = new Date().getTime()
+        start = Date.now()
     return this
 
   setPos: (x, y) ->
@@ -188,7 +190,7 @@ class Kaleidoscope extends EventEmitter
     return this
 
   autoPlay: ->
-    start = new Date().getTime()
+    start = Date.now()
     posList = [
       [-.2, -.2] # top lef
       [.2, -.2] # top right
@@ -198,14 +200,14 @@ class Kaleidoscope extends EventEmitter
     i = 0
     do autoPlay = =>
       @_autoPlayID = _requestAnimeFrame autoPlay
-      last = new Date().getTime()
+      last = Date.now()
       if last - start >= 800 + @_getRandomInt(0, 500)
         @setPos posList[i][0], posList[i][1]
         if i is posList.length - 1
           i = 0
         else
           i++
-        start = new Date().getTime()
+        start = Date.now()
     return this
 
   _onMouseMoved: (ev) =>
@@ -217,11 +219,11 @@ class Kaleidoscope extends EventEmitter
     return this
 
   addMouseEvent: ->
-    window.addEventListener 'mousemove', @_onMouseMoved
+    addListener window, 'mousemove', @_onMouseMoved
     return this
 
   rmMouseEvent: ->
-    window.removeEventListener 'mousemove', @_onMouseMoved
+    rmListener window, 'mousemove', @_onMouseMoved
     return this
 
   # todo ---------------------------
@@ -236,11 +238,11 @@ class Kaleidoscope extends EventEmitter
     return this
 
   addRotateEvent: ->
-    window.addEventListener 'deviceorientation', @_onRotation
+    addListener window, 'deviceorientation', @_onRotation
     return this
 
   rmRotateEvent: ->
-    window.removeEventListener 'deviceorientation', @_onRotation
+    rmListener window, 'deviceorientation', @_onRotation
     return this
 
   startAutoPlay: ->
@@ -271,7 +273,7 @@ class Kaleidoscope extends EventEmitter
 
     @update() if @opts.interactive
 
-    @opts.archive.addEventListener 'click', (ev) =>
+    addListener @opts.archive, 'click', (ev) =>
       @emit 'archive:click', ev
       # @trigger 'archive:click', ev
     return this

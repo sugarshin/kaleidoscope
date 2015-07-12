@@ -3,6 +3,8 @@
 { EventEmitter } = require 'events'
 objectAssign = require 'object-assign'
 
+{ addListener } = require './util'
+
 module.exports =
 class Range extends EventEmitter
 
@@ -10,7 +12,7 @@ class Range extends EventEmitter
     text: null
 
   constructor: (@input, opts) ->
-    EventEmitter.call @
+    super()
     @opts = objectAssign {}, @defaults, opts
     @setVal @input.value
     @changeText @getVal()
@@ -27,9 +29,9 @@ class Range extends EventEmitter
   getVal: -> @_val
 
   events: ->
-    @input.addEventListener 'input', (ev) =>
+    addListener @input, 'input', (ev) =>
       @changeText ev.target.value
 
-    @input.addEventListener 'change', (ev) =>
+    addListener @input, 'change', (ev) =>
       @setVal parseInt(ev.target.value, 10)
       @emit 'input:change', ev

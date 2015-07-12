@@ -12,23 +12,6 @@
 
 http://sugarshin.github.io/kaleidoscope/
 
-## Contributing
-
-* beefy
-* browserify
-* coffeeify
-* jade
-* replace
-* uglify-js
-
-```shell
-npm i
-
-npm start
-
-npm run build
-```
-
 ## License
 
 MIT
