@@ -10,7 +10,7 @@ require('insert-css') require '../index.styl'
 
 { Promise } = require 'es6-promise'
 Shake = require 'shake.js'
-debounce = require 'debounce'
+debounce = require 'lodash.debounce'
 
 FileRead = require './fileread'
 Range = require './range'
